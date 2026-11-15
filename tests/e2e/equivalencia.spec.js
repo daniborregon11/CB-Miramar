@@ -94,6 +94,7 @@ test("la app se comporta igual que el prototipo", async ({ browser }) => {
   app.on("pageerror", e => errores.push(e.message));
   await proto.goto(PROTO);
   await app.goto("/");
+  await app.waitForSelector("#app main"); // la app pinta en cuanto ha leído los datos guardados
   for (const [nombre, accion] of PASOS) {
     await accion(proto);
     await accion(app);

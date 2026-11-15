@@ -1,25 +1,48 @@
 // Datos de la app (S), estado de la pantalla (U), cargar y guardar
 import { TABS } from "./logic/constants.js";
 import { seed } from "./logic/sample.js";
-
-export var KEY = "baloncesto-stats-v1";
+import { openStore } from "./storage/db.js";
+import { readLegacy } from "./storage/migrate.js";
 
 export var storageOk = true;
+export var S = null;
+var store = null;
+var onStorageChange = function(){};
 
-export function load(){
+/* Arranque: carga de IndexedDB; si está vacío, trae los datos del prototipo
+   (si los hay en esta misma web); si tampoco, datos de ejemplo. */
+export async function initData(opts){
+  opts = opts || {};
+  if(opts.onStorageChange) onStorageChange = opts.onStorageChange;
+  var d = null, migrated = false;
   try{
-    var s = localStorage.getItem(KEY);
-    if(s){ var d = JSON.parse(s); if(d && Array.isArray(d.players) && Array.isArray(d.games)){ var onlySample = d.sample && (d.v||1)<2 && d.players.every(function(p){return p.sample;}) && d.games.every(function(g){return g.sample;}); if(!onlySample) return d; } }
-  }catch(e){ storageOk = false; }
-  return null;
+    store = await openStore();
+    d = await store.load();
+  }catch(e){ store = null; storageOk = false; }
+  if(!d){
+    var legacy = null;
+    try{ legacy = readLegacy(window.localStorage); }catch(e){ legacy = null; }
+    if(legacy){ d = legacy; migrated = true; }
+  }
+  S = d || seed();
+  if(migrated) save();
+  // Pedir al navegador que no borre los datos aunque falte espacio
+  try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function(){}); }catch(e){}
+  return { migrated: migrated };
 }
+
+/* Guarda en segundo plano. Si falla, se avisa con el banner (como en el prototipo). */
 export function save(){
-  try{ localStorage.setItem(KEY, JSON.stringify(S)); storageOk = true; }catch(e){ storageOk = false; }
+  if(!store){ storageOk = false; return Promise.resolve(false); }
+  return store.save(S).then(function(){
+    if(!storageOk){ storageOk = true; onStorageChange(); }
+    return true;
+  }, function(){
+    if(storageOk){ storageOk = false; onStorageChange(); }
+    return false;
+  });
 }
 
-/* Datos de ejemplo */
-
-export var S = load() || seed();
 /* Sustituye todos los datos (al importar una copia) */
 export function setData(d){ S = d; }
 export var U = {tab:"partido",stats:"equipo",player:null,mT:"pf",mP:"pts",sel:null,bench:null,sub:"anotar",game:null,season:"avg",edit:null,toast:null,modal:null};

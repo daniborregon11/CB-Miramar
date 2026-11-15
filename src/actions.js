@@ -5,6 +5,7 @@ import { applyDraft, draftRow, draftTotals, makeDraft, rowPts, validateDraft } f
 import { csvOf, pdfGame } from "./logic/export.js";
 import { short, today, uid } from "./logic/format.js";
 import { score } from "./logic/stats.js";
+import { migrate } from "./storage/migrate.js";
 import { S, U, gameById, liveGame, player, save, setData } from "./state.js";
 import { showTip } from "./ui/chart.js";
 import { exportFile } from "./ui/export-file.js";
@@ -182,8 +183,9 @@ document.addEventListener("change", function(e){
     try{
       var d = JSON.parse(rd.result);
       if(!d || !Array.isArray(d.players) || !Array.isArray(d.games)) throw new Error("formato");
+      var nd = migrate(d); if(!nd) throw new Error("formato");
       confirmBox("Importar copia", "La copia tiene "+d.players.length+" jugadores y "+d.games.length+" partidos. Sustituirá a todos los datos actuales.", "Importar", true, function(){
-        setData({v:1, team:d.team||"Mi equipo", players:d.players, games:d.games, liveId:d.liveId||null, sample:!!d.sample});
+        setData(nd);
         U.sel=null; U.game=null; U.edit=null;
       });
     }catch(err){
