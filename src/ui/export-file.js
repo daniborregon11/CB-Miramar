@@ -1,24 +1,37 @@
-// Descargar archivos (copia, CSV, PDF)
+// Descargar archivos (copia, CSV, PDF) y compartirlos con el menú de Android (WhatsApp, correo, Drive…)
 import { esc } from "../logic/format.js";
 import { U } from "../state.js";
 import { render } from "./layout.js";
+import { toast } from "./toast.js";
 
-/* Exportar */
-export var downloads = null;
-(function(){ try{ if(window.claude && typeof window.claude.use==="function"){ window.claude.use("downloads").then(function(d){ downloads=d; }).catch(function(){}); } }catch(e){} })();
+var lastFile = null;
+
+/* Si no se puede descargar: el texto se puede copiar a mano (como en el prototipo) */
+function fallback(name, data){
+  if(typeof data==="string") U.modal = {title:"Guardar datos", html:'<p class="muted small">No se ha podido descargar el archivo. Copia este texto y guárdalo en una nota o en un archivo llamado '+esc(name)+'.</p><textarea id="cp" readonly rows="8">'+esc(data)+'</textarea>', ok:"Cerrar", copy:true};
+  else U.modal = {title:"Descarga", body:"No se ha podido descargar el archivo "+name+". Prueba otra vez.", ok:"Entendido"};
+  render();
+}
+
 export function exportFile(name, data, mime){
-  var isText = typeof data==="string";
-  function fallback(){
-    try{ var a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([data],{type:mime})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(function(){ a.remove(); },100); }catch(e){}
-    if(isText) U.modal = {title:"Guardar datos", html:'<p class="muted small">Si el archivo no se ha descargado, copia este texto y guárdalo en una nota o en un archivo llamado '+esc(name)+'.</p><textarea id="cp" readonly rows="8">'+esc(data)+'</textarea>', ok:"Cerrar", copy:true};
-    else U.modal = {title:"Descarga", body:"Si el archivo "+name+" no se ha descargado, abre la app directamente en el navegador (fuera del chat) y vuelve a intentarlo.", ok:"Entendido"};
-    render();
-  }
-  if(downloads){
-    downloads.save({filename:name, data: isText ? data : new Blob([data],{type:mime})}).catch(function(err){
-      if(err && err.code==="declined") return;
-      if(err && err.code==="rate_limited"){ U.modal={title:"Espera un momento", body:"Ya hay una descarga pendiente de confirmar.", ok:"Entendido"}; render(); return; }
-      fallback();
-    });
-  } else fallback();
+  var blob;
+  try{
+    blob = new Blob([data], {type:mime});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a"); a.href = url; a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ a.remove(); URL.revokeObjectURL(url); }, 60000);
+  }catch(e){ fallback(name, data); return; }
+  lastFile = null;
+  try{
+    var f = new File([blob], name, {type:mime});
+    if(navigator.canShare && navigator.canShare({files:[f]})) lastFile = f;
+  }catch(e){ lastFile = null; }
+  toast("Descargado: "+name, null, lastFile ? {label:"Compartir", act:"share-file"} : null, 6000);
+}
+
+/* Abre el menú de compartir de Android con el último archivo exportado */
+export function shareLastFile(){
+  if(!lastFile || !navigator.share) return;
+  navigator.share({files:[lastFile], title:lastFile.name}).catch(function(){});
 }

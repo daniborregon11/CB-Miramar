@@ -3,6 +3,7 @@ import { QL, TABS } from "../logic/constants.js";
 import { esc } from "../logic/format.js";
 import { score } from "../logic/stats.js";
 import { S, U, liveGame } from "../state.js";
+import { syncWakeLock } from "./wakelock.js";
 import { viewStats } from "../views/estadisticas.js";
 import { viewHistorial } from "../views/historial.js";
 import { viewJugadores } from "../views/jugadores.js";
@@ -57,4 +58,5 @@ export function render(){
   else main = viewPartido();
   document.getElementById("app").innerHTML = renderTop()+'<main>'+main+'</main>'+renderTabbar()+renderModal();
   var ok = document.querySelector(U.modal && U.modal.cancel ? '.modal [data-do="modal-cancel"]' : '.modal [data-do="modal-ok"]'); if(ok) ok.focus();
+  syncWakeLock(!!liveGame());
 }

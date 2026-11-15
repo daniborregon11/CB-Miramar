@@ -9,7 +9,7 @@ import { migrate } from "./storage/migrate.js";
 import { applyUpdate } from "./ui/pwa.js";
 import { S, U, gameById, liveGame, player, save, setData } from "./state.js";
 import { showTip } from "./ui/chart.js";
-import { exportFile } from "./ui/export-file.js";
+import { exportFile, shareLastFile } from "./ui/export-file.js";
 import { render } from "./ui/layout.js";
 import { buzz, paintToast, toast } from "./ui/toast.js";
 import { tag } from "./views/partido.js";
@@ -139,6 +139,7 @@ document.addEventListener("click", function(e){
     case "modal-ok": var fn = U.modal && U.modal.fn; U.modal=null; if(fn) fn(); save(); render(); break;
     case "modal-cancel": U.modal=null; render(); break;
     case "update-app": applyUpdate(); break;
+    case "share-file": shareLastFile(); break;
     case "copy":
       var ta=document.getElementById("cp"); if(!ta) return;
       try{ navigator.clipboard.writeText(ta.value).then(function(){ b.textContent="Copiado"; }).catch(function(){ ta.select(); b.textContent="Selecciona y copia"; }); }

@@ -1,3 +1,4 @@
+// (Exportar CSV/PDF/copia se comprueba en descargas.spec.js: cambia a propósito la ventana del prototipo.)
 // Abre el prototipo original y la app nueva, hace los mismos toques en los dos
 // y comprueba que lo que se ve en pantalla es idéntico en cada paso.
 import { test, expect } from "@playwright/test";
@@ -58,10 +59,6 @@ const PASOS = [
   ["partido en juego", async p => { await p.locator(".grow").first().click(); }],
   ["volver al partido", async p => { await p.click('[data-do="tab:partido"]'); }],
   ["abrir partido acabado", async p => { await p.click('.tabbar [data-do="tab:historial"]'); await p.locator(".grow").nth(2).click(); }],
-  ["CSV", async p => { await p.locator('[data-do^="csv:"]').click(); }],
-  ["cerrar", async p => { await p.click('[data-do="modal-ok"]'); }],
-  ["PDF", async p => { await p.locator('[data-do^="pdf:"]').click(); }],
-  ["cerrar PDF", async p => { await p.click('[data-do="modal-ok"]'); }],
   ["editar acta", async p => { await p.locator('[data-do^="edit-game:"]').click(); }],
   ["añadir prórroga", async p => { await p.click('[data-do="edit-addq"]'); }],
   ["añadir jugador al acta", async p => { await p.click('[data-do="edit-addp"]'); }],
