@@ -33,5 +33,5 @@ export function seed(){
   var games = cal.map(function(c,i){ return genGame(players, 11+i*7, c[1], c[0], c[2], 4, 26, true, -0.15+i*0.07); });
   var live = genGame(players, 97, "Club Atlético Norte", today(), "Visitante", 3, 24, false, 0.1);
   games.push(live);
-  return {v:2,team:"Mi equipo",players:players,games:games,liveId:live.id,sample:true};
+  return {v:2,team:"CB Miramar",players:players,games:games,liveId:live.id,sample:true};
 }

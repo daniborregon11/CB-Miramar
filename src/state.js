@@ -8,6 +8,7 @@ export var storageOk = true;
 export var S = null;
 var store = null;
 var onStorageChange = function(){};
+var lastSave = Promise.resolve(true);
 
 /* Arranque: carga de IndexedDB; si está vacío, trae los datos del prototipo
    (si los hay en esta misma web); si tampoco, datos de ejemplo. */
@@ -34,7 +35,7 @@ export async function initData(opts){
 /* Guarda en segundo plano. Si falla, se avisa con el banner (como en el prototipo). */
 export function save(){
   if(!store){ storageOk = false; return Promise.resolve(false); }
-  return store.save(S).then(function(){
+  return lastSave = store.save(S).then(function(){
     if(!storageOk){ storageOk = true; onStorageChange(); }
     return true;
   }, function(){
@@ -42,6 +43,9 @@ export function save(){
     return false;
   });
 }
+
+/* Espera a que terminen los guardados pendientes */
+export function flushSaves(){ return lastSave.catch(function(){ return false; }); }
 
 /* Sustituye todos los datos (al importar una copia) */
 export function setData(d){ S = d; }

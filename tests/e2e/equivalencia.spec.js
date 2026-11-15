@@ -76,12 +76,17 @@ const PASOS = [
 ];
 
 // Texto visible de la pantalla + contenido de los cuadros de texto (CSV, copia)
+// Único cambio intencionado respecto al prototipo: en una instalación nueva el equipo se llama
+// "CB Miramar" (en el prototipo, "Mi equipo"). Se tiene en cuenta hasta que se importa una copia.
+const ANTES_DE_IMPORTAR = PASOS.findIndex(x => x[0] === "importar copia: sí");
+const sinCambiosIntencionados = (texto, i) => i < ANTES_DE_IMPORTAR ? texto.replaceAll("CB Miramar", "Mi equipo").replaceAll("CB MIRAMAR", "MI EQUIPO") : texto;
+
 const foto = p => p.evaluate(() => document.getElementById("app").innerText +
   [...document.querySelectorAll("textarea, input, select")].map(x => "\n[" + x.type + "] " + (x.type === "checkbox" ? x.checked : x.tagName === "SELECT" ? (x.selectedOptions[0] || {}).text : x.value)).join("") +
   "\n--toast--\n" + document.getElementById("toast").innerText);
 
 test("la app se comporta igual que el prototipo", async ({ browser }) => {
-  const ctxA = await browser.newContext(), ctxB = await browser.newContext();
+  const ctxA = await browser.newContext({ serviceWorkers: "block" }), ctxB = await browser.newContext({ serviceWorkers: "block" });
   // sin conexión a internet (como en la cancha): las fuentes de Google no cargan en ninguno de los dos
   await ctxA.route(/^https?:\/\/(?!localhost)/, r => r.abort());
   await ctxB.route(/^https?:\/\/(?!localhost)/, r => r.abort());
@@ -95,10 +100,10 @@ test("la app se comporta igual que el prototipo", async ({ browser }) => {
   await proto.goto(PROTO);
   await app.goto("/");
   await app.waitForSelector("#app main"); // la app pinta en cuanto ha leído los datos guardados
-  for (const [nombre, accion] of PASOS) {
+  for (const [i, [nombre, accion]] of PASOS.entries()) {
     await accion(proto);
     await accion(app);
-    expect(await foto(app), `paso "${nombre}"`).toBe(await foto(proto));
+    expect(sinCambiosIntencionados(await foto(app), i), `paso "${nombre}"`).toBe(await foto(proto));
   }
   expect(errores).toEqual([]);
 });
