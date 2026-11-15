@@ -4,6 +4,8 @@ App (PWA) para llevar las estadísticas del equipo desde la banda, en tablet And
 
 App publicada: https://daniborregon11.github.io/CB-Miramar/
 
+**Guía de uso (instalar, lista de comprobación, copias, cómo pedir cambios): [GUIA.md](GUIA.md)**
+
 ## Estructura
 - `prototipo.html`: prototipo original, referencia de comportamiento. **No se modifica.**
 - `index.html`: página base; carga `src/main.js`.
@@ -20,7 +22,7 @@ App publicada: https://daniborregon11.github.io/CB-Miramar/
 - `tests/e2e/almacenamiento.spec.js`: los datos se conservan al reabrir, migración real desde el prototipo, copia importada y aviso si no se puede guardar.
 - `tests/e2e/descargas.spec.js`: PDF, CSV y copia idénticos a los del prototipo; aviso con Compartir.
 - `tests/e2e/pantalla.spec.js`: pantalla encendida solo con partido en juego; deslizar no recarga.
-- `tests/e2e/pwa.spec.js`: ficha e iconos, funcionamiento sin conexión y aviso de versión nueva (sin recargar sola).
+- `tests/e2e/pwa.spec.js`: ficha e iconos, funcionamiento sin conexión, aviso de versión nueva (sin recargar sola) y funcionamiento en subcarpeta como en GitHub Pages.
 - `tests/e2e/fuentes.spec.js`: sin internet, las fuentes cargan y no se pide nada a webs de fuera.
 - `tests/e2e/equivalencia.spec.js`: prueba que abre el prototipo y la app, hace los mismos toques (63 pasos) y comprueba que se ve lo mismo (Playwright).
 

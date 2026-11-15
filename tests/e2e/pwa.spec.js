@@ -95,3 +95,28 @@ test("versión nueva: avisa, no se recarga sola y actualiza al pulsar", async ({
     rmSync(carpeta, { recursive: true, force: true });
   }
 });
+
+test("funciona dentro de una subcarpeta, como en GitHub Pages (/CB-Miramar/)", async ({ page, context }) => {
+  const raiz = mkdtempSync(join(tmpdir(), "cbm-"));
+  cpSync(resolve("dist"), join(raiz, "CB-Miramar"), { recursive: true });
+  const web = await servir(raiz);
+  try {
+    await sinInternet(context);
+    const url = web.url + "CB-Miramar/";
+    await listaSinConexion(page, url);
+    // La ficha y el service worker se quedan dentro de la subcarpeta
+    const m = await page.evaluate(async () => {
+      const href = document.querySelector('link[rel="manifest"]').href;
+      const j = await (await fetch(href)).json();
+      return { start: new URL(j.start_url, href).href, scope: new URL(j.scope, href).href, sw: (await navigator.serviceWorker.getRegistration()).scope };
+    });
+    expect(m).toEqual({ start: url, scope: url, sw: url });
+    // Sin conexión, abre y entra en otra pestaña
+    await context.setOffline(true);
+    await page.goto(url + "#estadisticas");
+    await expect(page.locator("main")).toContainText("Partidos jugados");
+  } finally {
+    await web.cerrar();
+    rmSync(raiz, { recursive: true, force: true });
+  }
+});

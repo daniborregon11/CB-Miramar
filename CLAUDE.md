@@ -73,3 +73,18 @@ Tipos de evento (`a`): `2A 2F 3A 3F 1A 1F RO RD AS RB TP PE FC` (con `p` = jugad
 - Antes de cambios grandes, proponer un plan y esperar mi visto bueno.
 - Mantener el comportamiento del prototipo salvo que pida otra cosa.
 - Explicarme cómo probar cada cambio en la tablet.
+
+## Estado actual (fase PWA terminada)
+App publicada en https://daniborregon11.github.io/CB-Miramar/ (repo `daniborregon11/CB-Miramar`, con mayúsculas). Guía para el usuario: `GUIA.md`. Detalle técnico: `README.md`.
+
+- **Tecnología:** JavaScript sin framework (el código del prototipo, repartido en módulos), Vite, vite-plugin-pwa, IndexedDB con `idb`, fuentes de `@fontsource`.
+- **Código:** `src/logic/` (cálculos puros, sin pantalla), `src/storage/` (IndexedDB y migración), `src/views/` (una pantalla por archivo), `src/ui/` (piezas comunes, PWA, pantalla encendida), `src/actions.js` (botones), `src/state.js` (datos `S` y estado `U`).
+- **Formato de datos:** el del prototipo con `v: 3`. Toda entrada (prototipo en localStorage, copia importada) pasa por `migrate()`.
+- **Publicación:** cada push a `main` pasa lint + Vitest + Playwright en GitHub Actions y, si todo va bien, publica en GitHub Pages.
+- **Comandos:** `npm run dev`, `npm test`, `npm run test:e2e`, `npm run lint`, `npm run build`.
+
+### Reglas al cambiar código
+- `tests/e2e/equivalencia.spec.js` compara la app con `prototipo.html` pantalla a pantalla. Si un cambio pedido por el usuario rompe esa comparación, documentar la diferencia como "cambio intencionado" en la prueba (no borrar pasos sin motivo).
+- Cambios intencionados respecto al prototipo hasta ahora: equipo por defecto "CB Miramar"; exportar descarga directamente con aviso "Compartir" (sin la ventana del chat); pantalla encendida con partido en juego; franja de versión nueva; no se recarga al deslizar.
+- Las versiones nuevas nunca se activan solas (`registerType: "prompt"`): no romper esto, puede pillar al usuario en mitad de un partido.
+- Comprobar cada prueba nueva provocando el fallo que debe detectar.
