@@ -2,7 +2,7 @@
 
 App (PWA) para llevar las estadísticas del equipo desde la banda, en tablet Android en horizontal y sin conexión.
 
-App publicada: https://daniborregon11.github.io/cb-miramar/
+App publicada: https://daniborregon11.github.io/CB-Miramar/
 
 ## Estructura
 - `prototipo.html`: prototipo original, referencia de comportamiento. **No se modifica.**
