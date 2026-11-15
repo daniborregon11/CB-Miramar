@@ -1,0 +1,9 @@
+/* Fuentes incluidas en la app (no dependen de internet).
+   Solo los grosores que se usan y el juego de letras latino (tildes, ñ, ¿, ¡…).
+   Licencia: SIL Open Font License. */
+@import "@fontsource/barlow-condensed/latin-500.css";
+@import "@fontsource/barlow-condensed/latin-600.css";
+@import "@fontsource/barlow-condensed/latin-700.css";
+@import "@fontsource/ibm-plex-sans/latin-400.css";
+@import "@fontsource/ibm-plex-sans/latin-500.css";
+@import "@fontsource/ibm-plex-sans/latin-600.css";
