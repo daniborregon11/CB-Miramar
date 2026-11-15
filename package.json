@@ -1,0 +1,15 @@
+{
+  "name": "cb-miramar",
+  "version": "1.0.0",
+  "description": "CB Miramar · estadísticas de baloncesto (PWA)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.4.6"
+  },
+  "private": true,
+  "type": "module"
+}
