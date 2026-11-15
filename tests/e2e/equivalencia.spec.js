@@ -85,6 +85,10 @@ test("la app se comporta igual que el prototipo", async ({ browser }) => {
   // sin conexión a internet (como en la cancha): las fuentes de Google no cargan en ninguno de los dos
   await ctxA.route(/^https?:\/\/(?!localhost)/, r => r.abort());
   await ctxB.route(/^https?:\/\/(?!localhost)/, r => r.abort());
+  // Reloj congelado en los dos: los avisos temporales (3,5 s) no desaparecen en uno antes que en otro
+  // aunque el ordenador vaya lento, y la fecha "de hoy" es siempre la misma.
+  const T0 = new Date("2026-11-15T10:00:00");
+  for (const ctx of [ctxA, ctxB]) { await ctx.clock.install({ time: T0 }); await ctx.clock.pauseAt(new Date(T0.getTime() + 1000)); }
   const proto = await ctxA.newPage(), app = await ctxB.newPage();
   const errores = [];
   app.on("pageerror", e => errores.push(e.message));
