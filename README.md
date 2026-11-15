@@ -6,10 +6,15 @@ App publicada: https://daniborregon11.github.io/cb-miramar/
 
 ## Estructura
 - `prototipo.html`: prototipo original, referencia de comportamiento. **No se modifica.**
-- `index.html` + `src/app.js`: la interfaz de la app.
-- `src/logic/`: la lógica (cálculo de estadísticas, tendencias, acta, cambios, CSV/PDF, datos de ejemplo).
+- `index.html`: página base; carga `src/main.js`.
+- `src/main.js`: arranque. `src/styles.css`: estilos.
+- `src/state.js`: datos (`S`), estado de la pantalla (`U`), cargar y guardar.
+- `src/actions.js`: qué pasa al tocar cada botón, enviar formularios o escribir en el acta.
+- `src/views/`: una pantalla por archivo (`partido`, `jugadores`, `historial`, `ficha`, `acta`, `estadisticas`).
+- `src/ui/`: piezas comunes (`layout` con marcador, pestañas y ventana modal; `banner`, `toast`, `chart`, `export-file`).
+- `src/logic/`: la lógica (cálculo de estadísticas, tendencias, acta, cambios, CSV/PDF, datos de ejemplo). No toca la pantalla.
 - `tests/`: tests de la lógica (Vitest).
-- `tests/e2e/`: prueba que abre el prototipo y la app, hace los mismos toques y comprueba que se ve lo mismo (Playwright).
+- `tests/e2e/`: prueba que abre el prototipo y la app, hace los mismos toques (63 pasos) y comprueba que se ve lo mismo (Playwright).
 
 ## Comandos
 | Comando | Qué hace |

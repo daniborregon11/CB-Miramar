@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import { resolve } from "node:path";
 
 const PROTO = pathToFileURL(resolve("prototipo.html")).href;
+const COPIA = resolve("tests/e2e/copia-prueba.json");
 
 // Cada paso: [descripción, acción]
 const PASOS = [
@@ -43,9 +44,41 @@ const PASOS = [
   ["empezar partido", async p => { await p.fill("#g-rival", "CB Prueba"); await p.click('#f-game button[type="submit"]'); }],
   ["quinteto inicial", async p => { for (let i = 0; i < 5; i++) await p.locator(".bbtn").first().click(); }],
   ["borrar ejemplo", async p => { await p.click('[data-do="clear-sample"]'); await p.click('[data-do="modal-ok"]'); }],
+  // A partir de aquí, los dos cargan la misma copia (mismos identificadores), así que todo es comparable
+  ["importar copia: confirmación", async p => { await p.setInputFiles("#imp", COPIA); }],
+  ["importar copia: sí", async p => { await p.click('[data-do="modal-ok"]'); }],
+  ["editar jugador", async p => { await p.locator('[data-do^="edit:"]').nth(2).click(); }],
+  ["guardar jugador", async p => { await p.fill("#p-name", "Daniel Ruiz Gómez"); await p.click('#f-player button[type="submit"]'); }],
+  ["nombre del equipo", async p => { await p.fill("#t-name", "CB Miramar"); await p.click('#f-team button[type="submit"]'); }],
+  ["dar de baja", async p => { await p.locator('[data-do^="delp:"]').last().click(); await p.click('[data-do="modal-ok"]'); }],
+  ["recuperar baja", async p => { await p.locator('[data-do^="restore:"]').first().click(); }],
+  ["quitar jugador sin estadísticas", async p => { await p.fill("#p-num", "98"); await p.fill("#p-name", "Nuevo"); await p.click('#f-player button[type="submit"]'); await p.locator('[data-do^="delp:"]').first().click(); await p.click('[data-do="modal-ok"]'); }],
+  ["Escape cierra la ventana", async p => { await p.locator('[data-do^="delp:"]').first().click(); await p.keyboard.press("Escape"); }],
+  ["historial por dirección", async p => { await p.evaluate(() => { location.hash = "historial"; }); await p.waitForFunction(() => document.querySelector(".glist")); }],
+  ["partido en juego", async p => { await p.locator(".grow").first().click(); }],
+  ["volver al partido", async p => { await p.click('[data-do="tab:partido"]'); }],
+  ["abrir partido acabado", async p => { await p.click('.tabbar [data-do="tab:historial"]'); await p.locator(".grow").nth(2).click(); }],
+  ["CSV", async p => { await p.locator('[data-do^="csv:"]').click(); }],
+  ["cerrar", async p => { await p.click('[data-do="modal-ok"]'); }],
+  ["PDF", async p => { await p.locator('[data-do^="pdf:"]').click(); }],
+  ["cerrar PDF", async p => { await p.click('[data-do="modal-ok"]'); }],
+  ["editar acta", async p => { await p.locator('[data-do^="edit-game:"]').click(); }],
+  ["añadir prórroga", async p => { await p.click('[data-do="edit-addq"]'); }],
+  ["añadir jugador al acta", async p => { await p.click('[data-do="edit-addp"]'); }],
+  ["salir sin guardar", async p => { await p.locator('[data-do="edit-cancel"]').first().click(); }],
+  ["acta con prórroga guardada", async p => { await p.locator('[data-do^="edit-game:"]').click(); await p.click('[data-do="edit-addq"]'); await p.fill("#ed-q5", "7"); await p.locator('#f-edit button[type="submit"]').last().click(); }],
+  ["borrar partido", async p => { await p.locator('[data-do^="delg:"]').click(); await p.click('[data-do="modal-ok"]'); }],
+  ["estadísticas tras cambios", async p => { await p.click('.tabbar [data-do="tab:estadisticas"]'); }],
+  ["etiqueta de la gráfica", async p => { await p.click('[data-do="stats:equipo"]'); await p.locator(".ch-hit").nth(1).click(); }],
+  ["quintetos y partido a partido → historial", async p => { await p.locator('[data-do^="open-h:"]').first().click(); }],
+  ["jugador desde estadísticas", async p => { await p.click('.tabbar [data-do="tab:estadisticas"]'); await p.click('[data-do="stats:jugadores"]'); await p.locator('[data-do^="player:"]').nth(3).click(); }],
+  ["volver a jugadores", async p => { await p.click('[data-do="player-close"]'); }],
 ];
 
-const foto = p => p.evaluate(() => document.getElementById("app").innerText + "\n--toast--\n" + document.getElementById("toast").innerText);
+// Texto visible de la pantalla + contenido de los cuadros de texto (CSV, copia)
+const foto = p => p.evaluate(() => document.getElementById("app").innerText +
+  [...document.querySelectorAll("textarea, input, select")].map(x => "\n[" + x.type + "] " + (x.type === "checkbox" ? x.checked : x.tagName === "SELECT" ? (x.selectedOptions[0] || {}).text : x.value)).join("") +
+  "\n--toast--\n" + document.getElementById("toast").innerText);
 
 test("la app se comporta igual que el prototipo", async ({ browser }) => {
   const ctxA = await browser.newContext(), ctxB = await browser.newContext();

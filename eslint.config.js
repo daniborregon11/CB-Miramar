@@ -5,6 +5,6 @@ export default [
   {
     files: ["**/*.js"],
     languageOptions: { ecmaVersion: 2022, sourceType: "module", globals: { ...globals.browser, ...globals.node } },
-    rules: { "no-undef": "error", "no-unused-vars": ["warn", { args: "none", caughtErrors: "none" }] },
+    rules: { "no-undef": "error", "no-import-assign": "error", "no-unused-vars": ["warn", { args: "none", caughtErrors: "none" }] },
   },
 ];
