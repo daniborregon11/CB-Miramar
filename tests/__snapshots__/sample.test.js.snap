@@ -1,0 +1,147 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`datos de ejemplo (comparación con el prototipo) > resultados de los partidos 1`] = `
+[
+  [
+    "CB Riberas",
+    56,
+    65,
+  ],
+  [
+    "Basket Sur",
+    58,
+    67,
+  ],
+  [
+    "CD Alameda",
+    63,
+    67,
+  ],
+  [
+    "UD Este",
+    68,
+    77,
+  ],
+  [
+    "CB Los Pinos",
+    61,
+    66,
+  ],
+  [
+    "Ciudad Vieja Basket",
+    82,
+    56,
+  ],
+  [
+    "Club Atlético Norte",
+    29,
+    21,
+  ],
+]
+`;
+
+exports[`datos de ejemplo (comparación con el prototipo) > tabla de temporada 1`] = `
+[
+  [
+    4,
+    6,
+    88,
+    19,
+    13,
+    67,
+    -12,
+  ],
+  [
+    7,
+    6,
+    63,
+    20,
+    5,
+    55,
+    -12,
+  ],
+  [
+    10,
+    6,
+    61,
+    8,
+    8,
+    55,
+    -18,
+  ],
+  [
+    12,
+    6,
+    28,
+    9,
+    4,
+    18,
+    -13,
+  ],
+  [
+    15,
+    6,
+    46,
+    18,
+    10,
+    55,
+    -16,
+  ],
+  [
+    21,
+    6,
+    19,
+    8,
+    4,
+    16,
+    1,
+  ],
+  [
+    8,
+    6,
+    20,
+    2,
+    1,
+    12,
+    3,
+  ],
+  [
+    5,
+    6,
+    29,
+    6,
+    1,
+    27,
+    33,
+  ],
+  [
+    23,
+    6,
+    21,
+    8,
+    3,
+    26,
+    -9,
+  ],
+  [
+    33,
+    6,
+    13,
+    2,
+    1,
+    9,
+    -7,
+  ],
+]
+`;
+
+exports[`datos de ejemplo (comparación con el prototipo) > totales del equipo del partido en juego 1`] = `
+[
+  29,
+  22,
+  5,
+  10,
+  32,
+  4,
+]
+`;
