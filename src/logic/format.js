@@ -17,10 +17,26 @@ export function fmtMin(m){ if(m==null || m==="" || isNaN(m)) return "–"; var s
 export function parseMin(t){
   t = String(t == null ? "" : t).trim();
   if(t === "") return "";
-  var m = t.match(/^(\d{1,3})(?:[:.,](\d{2}))?$/);
+  var m = t.match(/^(\d{1,3})(?:[:.,](\d{2})?)?$/); // "22:" también vale (= 22:00)
   if(!m) return null;
   var ss = m[2] == null ? 0 : Number(m[2]);
   if(ss > 59) return null;
   return Number(m[1]) + ss/60;
+}
+/* Mientras se escribe en la casilla de minutos: solo números y los dos puntos se ponen solos.
+   "2" → "2", "22" → "22:", "223" → "22:3", "2231" → "22:31". Si ya hay dos puntos (p. ej. "5:07"
+   de un valor guardado), se respetan. Un punto o una coma cuentan como dos puntos.
+   borrando = el usuario está borrando (no se vuelven a añadir los dos puntos). */
+export function maskMin(v, borrando){
+  v = String(v == null ? "" : v).replace(/[.,]/g, ":");
+  var i = v.indexOf(":");
+  if(i >= 0){
+    var mm = v.slice(0, i).replace(/\D/g, "").slice(0, 3), ss = v.slice(i + 1).replace(/\D/g, "").slice(0, 2);
+    if(!mm && !ss) return "";
+    return mm + ":" + ss;
+  }
+  var d = v.replace(/\D/g, "").slice(0, 4);
+  if(d.length < 2 || (d.length === 2 && borrando)) return d;
+  return d.slice(0, 2) + ":" + d.slice(2);
 }
 export function fmtV(v, m){ if(v==null) return "–"; if(m.fmt) return m.fmt(v); if(m.zero) return fsign(v, v%1!==0); return (v%1!==0 ? f1(v) : String(v))+(m.suf||""); }

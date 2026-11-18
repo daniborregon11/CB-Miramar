@@ -136,10 +136,23 @@ test("minutos con segundos: se escriben en el acta (22:32, 18.05) y se ven como 
   await min.nth(0).fill("22.5");
   await page.locator('#f-edit button[type="submit"]').last().click();
   await expect(page.locator("#ed-err")).toContainText("escribe minutos y segundos, por ejemplo 22:32");
-  await min.nth(0).fill("22:32");
-  await min.nth(1).fill("18.05");
-  await min.nth(2).click(); // al salir de la casilla se muestra como mm:ss
+  // se escriben solo números: los dos puntos se ponen solos
+  await min.nth(0).fill("");
+  await min.nth(0).pressSequentially("22");
+  await expect(min.nth(0)).toHaveValue("22:");
+  await min.nth(0).pressSequentially("32");
+  await expect(min.nth(0)).toHaveValue("22:32");
+  await min.nth(0).press("Backspace");
+  await expect(min.nth(0)).toHaveValue("22:3");
+  await min.nth(0).press("2");
+  await expect(min.nth(0)).toHaveValue("22:32");
+  await expect(min.nth(0)).toHaveAttribute("inputmode", "numeric");
+  await min.nth(1).pressSequentially("1805");
   await expect(min.nth(1)).toHaveValue("18:05");
+  await min.nth(2).pressSequentially("0507");
+  await min.nth(3).click(); // al salir de la casilla, 05:07 se muestra como 5:07
+  await expect(min.nth(2)).toHaveValue("5:07");
+  await min.nth(2).fill("");
   await page.locator('#f-edit button[type="submit"]').last().click();
   await expect(page.locator("#f-edit")).toHaveCount(0); // guardado: vuelve a la ficha
   // ficha del partido

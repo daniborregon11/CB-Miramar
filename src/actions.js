@@ -5,7 +5,7 @@ import { ACT, QL, TABS } from "./logic/constants.js";
 import { addSub, ensureCourt, removeEv } from "./logic/court.js";
 import { applyDraft, draftRow, draftTotals, makeDraft, rowPts, validateDraft } from "./logic/edit.js";
 import { csvOf, pdfGame } from "./logic/export.js";
-import { fmtMin, parseMin, short, today, uid } from "./logic/format.js";
+import { fmtMin, maskMin, parseMin, short, today, uid } from "./logic/format.js";
 import { score } from "./logic/stats.js";
 import { migrate } from "./storage/migrate.js";
 import { applyUpdate } from "./ui/pwa.js";
@@ -222,7 +222,15 @@ document.addEventListener("submit", function(e){
   }
 });
 
-document.addEventListener("input", function(e){ if(e.target.getAttribute && e.target.getAttribute("data-ed")) onEditInput(e.target); });
+document.addEventListener("input", function(e){
+  if(!(e.target.getAttribute && e.target.getAttribute("data-ed"))) return;
+  // Minutos: los dos puntos se ponen solos al escribir (2231 → 22:31)
+  if(/:min$/.test(e.target.getAttribute("data-ed"))){
+    var mv = maskMin(e.target.value, /^delete/.test(e.inputType || ""));
+    if(mv !== e.target.value) e.target.value = mv;
+  }
+  onEditInput(e.target);
+});
 document.addEventListener("change", function(e){
   if(e.target.getAttribute && e.target.getAttribute("data-ed")){
     // Minutos: al salir de la casilla, "18.05" o "18,05" se muestran como "18:05"

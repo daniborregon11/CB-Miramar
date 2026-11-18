@@ -22,12 +22,12 @@ export function viewEditGame(g){
     '<section class="card"><h2>Puntos del rival por cuarto</h2><div class="qedit">';
   for(var q=1;q<=d.nq;q++) h += '<label for="ed-q'+q+'">'+QL[q-1]+'<input id="ed-q'+q+'" type="number" inputmode="numeric" min="0" data-ed="opp:'+q+'" value="'+esc(d.opp[q])+'"></label>';
   h += '</div>'+(d.nq<5 ? '<button class="btn sm" type="button" data-do="edit-addq">Añadir prórroga</button>' : '')+'</section></div>';
-  h += '<section class="card"><h2>Estadísticas de los jugadores</h2><p class="muted small">Los puntos se calculan solos a partir de los tiros. Deja los minutos en blanco si no los sabes.<span'+nuevo(true,"min")+'> Escríbelos como minutos:segundos, por ejemplo 22:32.</span></p>'+
+  h += '<section class="card"><h2>Estadísticas de los jugadores</h2><p class="muted small">Los puntos se calculan solos a partir de los tiros. Deja los minutos en blanco si no los sabes.<span'+nuevo(true,"min")+'> Escribe minutos y segundos seguidos (2232 → 22:32): los dos puntos se ponen solos.</span></p>'+
     '<div class="tbl-wrap"><table class="edt"><thead><tr><th scope="col">Jugador</th><th scope="col" class="minc">MIN</th>'+
     EF.map(function(f){ return '<th scope="col"'+nuevo(f==="fr")+'>'+EF_LBL[f]+'</th>'; }).join("")+'<th scope="col">PTS</th></tr></thead><tbody>'+
     ps.map(function(p){ var r = d.p[p.id];
       return '<tr><th scope="row"><span class="dn">'+p.num+'</span>'+esc(short(p.name))+'</th>'+
-        '<td class="minc"><input type="text" inputmode="decimal" autocomplete="off" maxlength="6" aria-label="Minutos de '+esc(p.name)+' (minutos:segundos)" data-ed="p:'+p.id+':min" value="'+esc(r.min)+'" placeholder="mm:ss"></td>'+
+        '<td class="minc"><input type="text" inputmode="numeric" autocomplete="off" maxlength="6" aria-label="Minutos de '+esc(p.name)+' (minutos:segundos)" data-ed="p:'+p.id+':min" value="'+esc(r.min)+'" placeholder="mm:ss"></td>'+
         EF.map(function(f){ return '<td'+nuevo(f==="fr")+'><input type="number" inputmode="numeric" min="0" aria-label="'+EF_LBL[f]+' de '+esc(p.name)+'" data-ed="p:'+p.id+':'+f+'" value="'+esc(r[f])+'"></td>'; }).join("")+
         '<td class="hi" id="ed-pts-'+p.id+'">'+rowPts(r)+'</td></tr>';
     }).join("")+'</tbody></table></div>'+
