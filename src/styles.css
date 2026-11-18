@@ -270,3 +270,10 @@ td.hi{color:var(--accent);font-weight:600}
   #toast{bottom:20px;left:calc(50% + 44px)}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* Ventana de asistencia / rebote tras un tiro: botones grandes para el dedo */
+.modal.ask{width:min(620px,100%);gap:14px}
+.askp{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.askp .pbtn{min-height:86px;cursor:pointer}
+.askp .pbtn:active{border-color:var(--accent);background:var(--accent-soft)}
+.askx{display:flex;gap:10px}
+.askx .btn{flex:1;min-height:56px;font-size:16px}

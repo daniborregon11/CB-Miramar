@@ -65,3 +65,17 @@ describe("almacén en IndexedDB", () => {
     expect(await st.load()).toEqual(copia(otra));
   });
 });
+
+describe("ajustes de este dispositivo", () => {
+  it("se guardan aparte de los datos del equipo", async () => {
+    const name = "test-" + (++n);
+    const a = await openStore(name);
+    expect(await a.getPref()).toBeNull();
+    await a.setPref({ askAst: false, askReb: true });
+    await a.save(seed());
+    a.close();
+    const b = await openStore(name);
+    expect(await b.getPref()).toEqual({ askAst: false, askReb: true });
+    expect((await b.load()).prefs).toBeUndefined(); // no se mezclan con los datos (ni van en la copia)
+  });
+});

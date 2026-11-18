@@ -1,4 +1,5 @@
 // Pestaña Estadísticas: equipo, jugadores y análisis individual
+import { orebPct } from "../logic/followup.js";
 import { nuevo } from "../ui/nuevo.js";
 import { byNum, esc, f1, fmtV, fpc, fsign, pct, short, shortDate } from "../logic/format.js";
 import { PLAYER_M, TEAM_M, per40, seasonRows } from "../logic/metrics.js";
@@ -56,7 +57,7 @@ export function viewStatsTeam(done){
     '<div class="trend">'+tr.html+'</div>'+chartSVG(pts, M, tr.fit)+
     '<p class="muted small" style="margin:4px 0 0">Cada punto es un partido. La línea discontinua es la tendencia.</p>'+lastVsAvg(pts, M)+'</section>';
   function kv(label, val, note){ return '<div class="kv"><span>'+label+(note?'<small>'+note+'</small>':'')+'</span><b>'+val+'</b></div>'; }
-  function kvNuevo(label, val){ return '<div class="kv" data-nuevo="FR"><span>'+label+'</span><b>'+val+'</b></div>'; }
+  function kvNuevo(label, val, note){ return '<div class="kv" data-nuevo="FR"><span>'+label+(note?'<small>'+note+'</small>':'')+'</span><b>'+val+'</b></div>'; }
   h += '<div class="grid2"><section class="card"><h2>Promedios por partido</h2>'+
     kv("Puntos", f1(s.pts/n))+
     kv("Rebotes", f1(s.reb/n), f1(s.ro/n)+" ofensivos · "+f1(s.rd/n)+" defensivos")+
@@ -73,6 +74,7 @@ export function viewStatsTeam(done){
     kv("Recibidos por 100 posesiones", poss>0?f1(100*pa/poss):"–", "Eficiencia en defensa (se asume que el rival tiene las mismas posesiones)")+
     kv("Canastas asistidas", s.fgm?fpc(100*s.as/s.fgm):"–", "Porcentaje de canastas que vienen de una asistencia")+
     kv("Pérdidas por 100 posesiones", poss>0?f1(100*s.pe/poss):"–", "Cuidado del balón")+
+    kvNuevo("Rebotes ofensivos cogidos", fpc(orebPct(done, calc)), "De los rebotes tras nuestros tiros fallados, cuántos cogemos (partidos con el rebote del rival anotado)")+
     kv("Segundas oportunidades", (s.fga-s.fgm)?fpc(100*s.ro/(s.fga-s.fgm)):"–", "Rebotes ofensivos por cada 100 tiros de campo fallados")+
     kv("Tiros libres por tiro de campo", s.fga?f1(s.tla/s.fga).replace(/^0/,"0"):"–", "Capacidad para provocar faltas")+
     kv("Tiros de 3 sobre el total", s.fga?fpc(100*s.t3a/s.fga):"–", "Peso del triple en el juego")+'</section></div>';

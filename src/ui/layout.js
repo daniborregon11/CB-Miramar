@@ -7,7 +7,7 @@ import { syncWakeLock } from "./wakelock.js";
 import { viewStats } from "../views/estadisticas.js";
 import { viewHistorial } from "../views/historial.js";
 import { viewJugadores } from "../views/jugadores.js";
-import { viewPartido } from "../views/partido.js";
+import { renderAsk, viewPartido } from "../views/partido.js";
 
 export function renderTop(){
   var g = liveGame();
@@ -56,7 +56,7 @@ export function render(){
   else if(U.tab==="historial") main = viewHistorial();
   else if(U.tab==="estadisticas") main = viewStats();
   else main = viewPartido();
-  document.getElementById("app").innerHTML = renderTop()+'<main>'+main+'</main>'+renderTabbar()+renderModal();
+  document.getElementById("app").innerHTML = renderTop()+'<main>'+main+'</main>'+renderTabbar()+renderModal()+renderAsk();
   var ok = document.querySelector(U.modal && U.modal.cancel ? '.modal [data-do="modal-cancel"]' : '.modal [data-do="modal-ok"]'); if(ok) ok.focus();
   syncWakeLock(!!liveGame());
 }

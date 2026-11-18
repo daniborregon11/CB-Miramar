@@ -108,6 +108,8 @@ test("la app se comporta igual que el prototipo", async ({ browser }) => {
   for (const [i, [nombre, accion]] of PASOS.entries()) {
     await accion(proto);
     await accion(app);
+    // Ventana nueva tras un tiro (asistencia / rebote): «Sin…» deja los datos igual que en el prototipo
+    if (await app.locator(".ask").count()) await app.click('.ask [data-do="ask-none"]');
     expect(sinCambiosIntencionados(await foto(app), i), `paso "${nombre}"`).toBe(await foto(proto));
   }
   expect(errores).toEqual([]);

@@ -83,6 +83,7 @@ export function logCard(g){
     (ev.length ? '<ul class="log">'+ev.map(function(e){
       var txt, cls;
       if(e.a==="OPP"){ txt = esc(g.rival)+' · +'+e.pts; cls="opp"; }
+      else if(e.a==="RR"){ txt = esc(g.rival)+' · rebote defensivo'; cls="opp"; }
       else if(e.a==="SUB"){ cls="sub"; txt = e["in"]&&e.out ? 'Cambio · entra '+esc(tag(e["in"]))+', sale '+esc(tag(e.out)) : e["in"] ? 'Entra a pista '+esc(tag(e["in"])) : 'Al banquillo '+esc(tag(e.out)); }
       else { var p = player(e.p); txt = (p ? '#'+p.num+' '+esc(short(p.name)) : 'Jugador')+' · '+ACT[e.a].t; cls = ACT[e.a].cls==="ok"?"ok":ACT[e.a].cls==="miss"?"miss":""; }
       return '<li><span class="q">'+QL[e.q-1]+'</span><span class="tx"><span class="dot '+cls+'"></span>'+txt+'</span><button class="x" data-do="delev:'+e.id+'" aria-label="Borrar esta acción">×</button></li>';
@@ -103,4 +104,18 @@ export function viewNewGame(){
     (act.length > MAX_CONVOCADOS ? '<label class="chk friendly"'+nuevo(true,"conv")+' for="g-friendly"><input type="checkbox" id="g-friendly"> Partido amistoso (sin límite de '+MAX_CONVOCADOS+' convocados)</label>' : '')+
     '</fieldset><p class="err" id="g-err" role="alert"></p>'+
     '<div class="btns"><button class="btn primary" type="submit">Empezar partido</button></div></form></section>';
+}
+
+/* Ventana tras un tiro: ¿asistencia? / ¿rebote? (tocar fuera = "Sin…") */
+export function renderAsk(){
+  var a = U.ask; if(!a) return "";
+  var reb = a.kind==="reb", tirador = player(a.shooter);
+  var titulo = reb ? "¿Quién coge el rebote?" : "¿Quién da la asistencia?";
+  var sub = (tirador ? "#"+tirador.num+" "+esc(short(tirador.name)) : "")+" · "+ACT[a.a].t;
+  return '<div class="modal-bg ask-bg"'+nuevo(true,"ask")+' data-do="ask-bg"><div class="modal ask" role="dialog" aria-modal="true" aria-labelledby="ask-t">'+
+    '<h3 id="ask-t">'+titulo+'</h3><p class="muted small">'+sub+(reb ? ' · rebote ofensivo de:' : '')+'</p>'+
+    '<div class="askp">'+a.players.map(function(id){ var p = player(id); if(!p) return "";
+      return '<button class="pbtn" data-do="ask-pick:'+id+'"><span class="num">'+p.num+'</span><span class="nm">'+esc(short(p.name))+'</span></button>'; }).join("")+'</div>'+
+    '<div class="askx">'+(reb ? '<button class="btn" data-do="ask-pick:rival">Rebote del rival</button>' : '')+
+    '<button class="btn" data-do="ask-none">'+(reb ? 'Sin rebote' : 'Sin asistencia')+'</button></div></div></div>';
 }

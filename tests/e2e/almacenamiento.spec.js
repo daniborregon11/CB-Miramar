@@ -22,6 +22,7 @@ test("lo anotado sigue ahí al cerrar y volver a abrir la app", async ({ page })
   const antes = Number(await marcador(page));
   await page.click(".tok:not(.empty)");
   await page.click('[data-do="act:3A"]');
+  await page.click('.ask [data-do="ask-none"]');
   await page.click('.opp-wide [data-do="opp:2"]');
   await guardado(page);
   await page.reload(); await page.waitForSelector("#app main");

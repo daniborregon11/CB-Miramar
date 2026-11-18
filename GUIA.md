@@ -54,8 +54,9 @@ Si todo está marcado, la app está lista para un partido de verdad.
 - **Empezar:** pestaña **Partido** → rival, fecha, lugar, convocados → **Empezar partido** → toca 5 jugadores del banquillo para el quinteto inicial.
 - **Convocados:** máximo **12** (el contador lo indica). Si en la plantilla hay más de 12, salen desmarcados y eliges tú. En un **amistoso** marca «Partido amistoso» y no hay límite.
 - **Anotar:** toca el jugador en la cancha y después la acción. **Falta recibida** está junto a «Falta»: no cuenta para las 5 faltas y suma +1 en la valoración.
+- **Tras cada tiro** sale una ventana: tras **canasta de 2 o 3**, «¿Quién da la asistencia?» (o «Sin asistencia»); tras un **fallo** (también tiro libre), «¿Quién coge el rebote?» (uno de los 5, «Rebote del rival» o «Sin rebote»). Tocar fuera de la ventana es «Sin…». Si un día van demasiado rápido, se desactivan en **Jugadores → Anotación**.
 - **Cambios:** toca primero al del **banquillo** y después al de la cancha que sale.
-- **Si te equivocas:** **Deshacer** en el aviso de abajo, o la **×** en "Últimas acciones".
+- **Si te equivocas:** **Deshacer** en el aviso de abajo, o la **×** en "Últimas acciones". Deshacer un tiro quita también su asistencia o rebote; la × de la asistencia o del rebote quita solo eso.
 - **No hace falta internet** en ningún momento.
 - **Si sale "Hay una versión nueva de la app"** durante el partido, **ignórala** y actualiza después: no se pierde nada.
 - **Al acabar:** **Finalizar partido**, apunta los minutos si los tienes y **Guardar cambios**.

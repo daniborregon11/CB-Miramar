@@ -52,6 +52,7 @@ test("sin conexión: abre, se ve bien, anota y guarda", async ({ page, context }
     expect(await page.evaluate(async v => (await document.fonts.load(v)).map(f => f.status), v)).toEqual(["loaded"]);
   const antes = Number(await page.locator(".team .pts").first().textContent());
   await page.click(".tok:not(.empty)"); await page.click('[data-do="act:2A"]');
+  await page.click('.ask [data-do="ask-none"]');
   await page.waitForTimeout(1000);
   // cerrar y volver a abrir sin conexión, entrando directamente en otra pestaña
   await page.goto("/#historial");
@@ -84,6 +85,7 @@ test("versión nueva: avisa, no se recarga sola y actualiza al pulsar", async ({
     // Lo anotado antes de actualizar no se pierde
     const antes = Number(await page.locator(".team .pts").first().textContent());
     await page.click(".tok:not(.empty)"); await page.click('[data-do="act:3A"]');
+    await page.click('.ask [data-do="ask-none"]');
     // Al pulsar "Actualizar" se recarga con la versión nueva y desaparece la franja
     await Promise.all([page.waitForEvent("load"), page.click('[data-do="update-app"]')]);
     await page.waitForSelector("#app main");

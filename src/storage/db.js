@@ -78,5 +78,9 @@ export async function openStore(name){
     return job;
   }
 
-  return { load: load, save: save, close: function(){ db.close(); } };
+  /* Preferencias de este dispositivo (no son datos del equipo: no van en la copia) */
+  async function getPref(){ return (await db.get("meta", "prefs")) || null; }
+  async function setPref(p){ await db.put("meta", p, "prefs"); }
+
+  return { load: load, save: save, getPref: getPref, setPref: setPref, close: function(){ db.close(); } };
 }

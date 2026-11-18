@@ -61,7 +61,8 @@ Más adelante (no ahora): empaquetar para Google Play / App Store (p. ej. con Ca
             min:{playerId: minutos}, sample?,
             events: [{ id, a, p, q, t, ... }] }] }
 ```
-Tipos de evento (`a`): `2A 2F 3A 3F 1A 1F RO RD AS RB TP PE FC FR` (con `p` = jugador; `FR` = falta recibida, no cuenta para las 5 faltas), `OPP` (puntos del rival, `pts`), `SUB` (`in`, `out`), `ADJ` (`p`, `d:{campo:delta}`), `OPPADJ` (`pts`, `q`).
+Tipos de evento (`a`): `2A 2F 3A 3F 1A 1F RO RD AS RB TP PE FC FR` (con `p` = jugador; `FR` = falta recibida, no cuenta para las 5 faltas), `OPP` (puntos del rival, `pts`), `RR` (rebote defensivo del rival, `p: null`), `SUB` (`in`, `out`), `ADJ` (`p`, `d:{campo:delta}`), `OPPADJ` (`pts`, `q`).
+Un evento puede llevar `ref` (id de un tiro): es la asistencia o el rebote respondidos en la ventana tras ese tiro; al borrar el tiro se borran también.
 **Las estadísticas siempre se calculan a partir de los eventos**; no se guardan totales.
 
 ## Diseño
@@ -85,7 +86,7 @@ App publicada en https://daniborregon11.github.io/CB-Miramar/ (repo `daniborrego
 
 ### Reglas al cambiar código
 - `tests/e2e/equivalencia.spec.js` compara la app con `prototipo.html` pantalla a pantalla. Si un cambio pedido por el usuario rompe esa comparación, documentar la diferencia como "cambio intencionado" en la prueba (no borrar pasos sin motivo).
-- Cambios intencionados respecto al prototipo hasta ahora: equipo por defecto "CB Miramar"; exportar descarga directamente con aviso "Compartir" (sin la ventana del chat); pantalla encendida con partido en juego; franja de versión nueva; no se recarga al deslizar; faltas recibidas (FR) en botonera, tablas, acta, PDF, CSV y VAL; máximo 12 convocados salvo "Partido amistoso" (`g.friendly`), con 12 o menos en plantilla salen marcados y con más, desmarcados.
+- Cambios intencionados respecto al prototipo hasta ahora: equipo por defecto "CB Miramar"; exportar descarga directamente con aviso "Compartir" (sin la ventana del chat); pantalla encendida con partido en juego; franja de versión nueva; no se recarga al deslizar; faltas recibidas (FR) en botonera, tablas, acta, PDF, CSV y VAL; máximo 12 convocados salvo "Partido amistoso" (`g.friendly`), con 12 o menos en plantilla salen marcados y con más, desmarcados; ventanas tras cada tiro: asistencia (canasta de 2/3, los otros 4 de pista) y rebote (fallo de 2/3/TL: los 5 de pista, rival o ninguno), desactivables en Jugadores → Anotación (preferencia del dispositivo en `meta/prefs`, no va en la copia); «Sin…» no guarda nada (igual que el prototipo); métrica «Rebotes ofensivos cogidos».
 - Todo lo que se añade a la pantalla respecto al prototipo se marca con `data-nuevo` (ayuda `nuevo()` en `src/ui/nuevo.js`); las pruebas de equivalencia y migración lo ocultan al comparar. Si algo nuevo no se marca, la comparación falla.
 - Las versiones nuevas nunca se activan solas (`registerType: "prompt"`): no romper esto, puede pillar al usuario en mitad de un partido.
 - Comprobar cada prueba nueva provocando el fallo que debe detectar.

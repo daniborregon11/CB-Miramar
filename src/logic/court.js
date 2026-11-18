@@ -22,6 +22,12 @@ export function revertSub(g, e, playerFn){
 }
 export function removeEv(g, id, playerFn){
   for(var i=g.events.length-1;i>=0;i--){
-    if(g.events[i].id===id){ var e=g.events.splice(i,1)[0]; if(e.a==="SUB") revertSub(g,e,playerFn); return; }
+    if(g.events[i].id===id){
+      var e=g.events.splice(i,1)[0];
+      if(e.a==="SUB") revertSub(g,e,playerFn);
+      // lo que iba unido a este evento (asistencia o rebote de un tiro) también se borra
+      g.events = g.events.filter(function(x){ return x.ref!==id; });
+      return;
+    }
   }
 }

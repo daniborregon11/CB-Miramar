@@ -1,4 +1,5 @@
 // Qué pasa al tocar cada botón, enviar formularios o escribir en el acta
+import { askFor, askPlayers, followUp, undoTarget } from "./logic/followup.js";
 import { rosterError, rosterLimit, rosterCount } from "./logic/roster.js";
 import { ACT, QL, TABS } from "./logic/constants.js";
 import { addSub, ensureCourt, removeEv } from "./logic/court.js";
@@ -8,7 +9,7 @@ import { short, today, uid } from "./logic/format.js";
 import { score } from "./logic/stats.js";
 import { migrate } from "./storage/migrate.js";
 import { applyUpdate } from "./ui/pwa.js";
-import { S, U, gameById, liveGame, player, save, setData } from "./state.js";
+import { S, U, gameById, liveGame, player, prefs, save, setData, setPref } from "./state.js";
 import { showTip } from "./ui/chart.js";
 import { exportFile, shareLastFile } from "./ui/export-file.js";
 import { render } from "./ui/layout.js";
@@ -50,6 +51,24 @@ function updateRosterForm(){
   var err = document.getElementById("g-err"); if(err && !rosterError(n, friendly)) err.textContent = "";
 }
 
+/* Respuesta a la ventana de asistencia / rebote */
+function answerAsk(choice){
+  var a = U.ask; U.ask = null;
+  var g = liveGame(); if(!a || !g){ render(); return; }
+  var shot = null; g.events.forEach(function(e){ if(e.id===a.shot) shot = e; });
+  if(!shot){ render(); return; }
+  var f = followUp(a.kind, choice, shot);
+  if(f){
+    g.events.push(f); save(); buzz();
+    var tir = player(shot.p);
+    var extra = f.a==="AS" ? "asistencia de "+tag(f.p) : f.a==="RO" ? "rebote ofensivo de "+tag(f.p) : "rebote del rival";
+    render();
+    toast((tir ? "#"+tir.num+" "+short(tir.name) : "Jugador")+" · "+ACT[shot.a].t+" · "+extra, shot.id);
+    return;
+  }
+  render();
+}
+
 export function setupEvents(){
 window.addEventListener("hashchange", function(){ var h=location.hash.slice(1); if(h==="temporada") h="estadisticas"; if(TABS.indexOf(h)>=0 && h!==U.tab){ U.tab=h; U.game=null; render(); } });
 
@@ -83,14 +102,21 @@ document.addEventListener("click", function(e){
     case "act":
       if(!g || !U.sel) return;
       var ev = {id:uid(), p:U.sel, a:v, q:g.q, t:Date.now()}; g.events.push(ev);
-      var p = player(U.sel); U.sel = null; save(); render(); buzz();
+      var p = player(U.sel); U.sel = null;
+      // Tras un tiro: preguntar asistencia o rebote (si está activado y hay a quién elegir)
+      var kind = askFor(v, prefs), cands = kind ? askPlayers(kind, ensureCourt(g, player), ev.p) : [];
+      U.ask = kind && (cands.length || kind==="reb") ? {kind:kind, shot:ev.id, shooter:ev.p, a:v, players:cands} : null;
+      save(); render(); buzz();
       toast("#"+p.num+" "+short(p.name)+" · "+ACT[v].t, ev.id); break;
+    case "ask-bg": if(e.target!==b) return; answerAsk("none"); break;
+    case "ask-none": answerAsk("none"); break;
+    case "ask-pick": answerAsk(v); break;
     case "opp":
       if(!g) return;
       var oe = {id:uid(), p:null, a:"OPP", pts:+v, q:g.q, t:Date.now()}; g.events.push(oe); save(); render(); buzz();
       toast(g.rival+" +"+v, oe.id); break;
     case "q": if(g){ g.q=+v; save(); render(); } break;
-    case "undo": if(g){ var lv = g.events.filter(function(e){ return e.a!=="ADJ" && e.a!=="OPPADJ"; }); if(lv.length){ removeEv(g, lv[lv.length-1].id, player); save(); render(); } } break;
+    case "undo": if(g){ var ut = undoTarget(g.events); if(ut){ removeEv(g, ut, player); save(); render(); } } break;
     case "undo-ev": case "delev":
       if(g){ removeEv(g, v, player); save(); render(); }
       if(k==="undo-ev"){ U.toast=null; paintToast(); } break;
@@ -197,6 +223,7 @@ document.addEventListener("input", function(e){ if(e.target.getAttribute && e.ta
 document.addEventListener("change", function(e){
   if(e.target.getAttribute && e.target.getAttribute("data-ed")){ onEditInput(e.target); return; }
   if(e.target.closest && e.target.closest("#f-game") && e.target.type==="checkbox"){ updateRosterForm(); return; }
+  if(e.target.getAttribute && e.target.getAttribute("data-pref")){ setPref(e.target.getAttribute("data-pref"), e.target.checked); return; }
   if(e.target.id!=="imp") return;
   var file = e.target.files && e.target.files[0]; if(!file) return;
   var rd = new FileReader();
@@ -220,5 +247,5 @@ document.addEventListener("change", function(e){
 document.addEventListener("pointerover", function(e){ var h = e.target.closest && e.target.closest(".ch-hit"); if(h) showTip(h); });
 document.addEventListener("pointerout", function(e){ var h = e.target.closest && e.target.closest(".ch-hit"); if(h){ var t=h.closest(".chart").querySelector(".ch-tip"); if(t) t.hidden=true; } });
 document.addEventListener("click", function(e){ var h = e.target.closest && e.target.closest(".ch-hit"); if(h) showTip(h); });
-document.addEventListener("keydown", function(e){ if(e.key==="Escape" && U.modal){ U.modal=null; render(); } });
+document.addEventListener("keydown", function(e){ if(e.key==="Escape" && U.ask){ answerAsk("none"); return; } if(e.key==="Escape" && U.modal){ U.modal=null; render(); } });
 }

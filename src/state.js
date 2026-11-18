@@ -6,6 +6,8 @@ import { readLegacy } from "./storage/migrate.js";
 
 export var storageOk = true;
 export var S = null;
+/* Ajustes de anotación de este dispositivo */
+export var prefs = { askAst: true, askReb: true };
 var store = null;
 var onStorageChange = function(){};
 var lastSave = Promise.resolve(true);
@@ -19,6 +21,8 @@ export async function initData(opts){
   try{
     store = await openStore();
     d = await store.load();
+    var pf = await store.getPref();
+    if(pf) prefs = Object.assign({}, prefs, pf);
   }catch(e){ store = null; storageOk = false; }
   if(!d){
     var legacy = null;
@@ -42,6 +46,12 @@ export function save(){
     if(storageOk){ storageOk = false; onStorageChange(); }
     return false;
   });
+}
+
+/* Cambia un ajuste y lo guarda */
+export function setPref(k, v){
+  prefs = Object.assign({}, prefs); prefs[k] = v;
+  if(store) store.setPref(prefs).catch(function(){});
 }
 
 /* Espera a que terminen los guardados pendientes */
