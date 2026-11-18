@@ -1,4 +1,5 @@
 // Qué pasa al tocar cada botón, enviar formularios o escribir en el acta
+import { rosterError, rosterLimit, rosterCount } from "./logic/roster.js";
 import { ACT, QL, TABS } from "./logic/constants.js";
 import { addSub, ensureCourt, removeEv } from "./logic/court.js";
 import { applyDraft, draftRow, draftTotals, makeDraft, rowPts, validateDraft } from "./logic/edit.js";
@@ -37,6 +38,18 @@ export function saveEdit(){
 export function confirmBox(title, body, ok, danger, fn){ U.modal = {title:title, body:body, ok:ok, danger:danger, fn:fn}; render(); }
 /* ---------- Acciones ---------- */
 export function go(tab){ U.draft=null; U.justFinished=null; U.player=null; U.bench=null; U.toast=null; paintToast(); U.tab=tab; U.game=null; U.edit=null; if(location.hash!=="#"+tab){ try{ location.hash=tab; }catch(e){} } render(); window.scrollTo(0,0); }
+/* Nuevo partido: contador de convocados y, al llegar a 12 (si no es amistoso), no deja marcar más */
+function updateRosterForm(){
+  var f = document.getElementById("f-game"); if(!f) return;
+  var boxes = f.querySelectorAll('.checks input[type="checkbox"]');
+  var fr = document.getElementById("g-friendly"), friendly = !!(fr && fr.checked);
+  var n = f.querySelectorAll('.checks input[type="checkbox"]:checked').length;
+  var full = n >= rosterLimit(friendly);
+  Array.prototype.forEach.call(boxes, function(b){ b.disabled = full && !b.checked; });
+  var c = document.getElementById("g-count"); if(c) c.textContent = rosterCount(n, friendly);
+  var err = document.getElementById("g-err"); if(err && !rosterError(n, friendly)) err.textContent = "";
+}
+
 export function setupEvents(){
 window.addEventListener("hashchange", function(){ var h=location.hash.slice(1); if(h==="temporada") h="estadisticas"; if(TABS.indexOf(h)>=0 && h!==U.tab){ U.tab=h; U.game=null; render(); } });
 
@@ -122,6 +135,7 @@ document.addEventListener("click", function(e){
     case "edit-addq": if(U.draft && U.draft.nq<5){ U.draft.nq++; U.draft.opp[U.draft.nq]=0; render(); } break;
     case "edit-addp":
       var sel2=document.getElementById("ed-add"); if(!U.draft || !sel2) return;
+      var gl=gameById(U.draft.id); if(U.draft.roster.length >= rosterLimit(gl && gl.friendly)) return;
       var nid=sel2.value; if(U.draft.roster.indexOf(nid)<0){ U.draft.roster.push(nid); var eg2=gameById(U.draft.id); U.draft.p[nid]=draftRow(eg2,nid); }
       render(); break;
     case "stats": U.stats=v; U.player=null; render(); break;
@@ -153,10 +167,13 @@ document.addEventListener("submit", function(e){
   var f = e.target;
   if(f.id==="f-edit"){ saveEdit(); return; }
   if(f.id==="f-game"){
-    var roster = Array.prototype.map.call(f.querySelectorAll('input[type="checkbox"]:checked'), function(x){ return x.value; });
-    if(!roster.length){ document.getElementById("g-err").textContent="Marca al menos un jugador convocado."; return; }
+    var roster = Array.prototype.map.call(f.querySelectorAll('.checks input[type="checkbox"]:checked'), function(x){ return x.value; });
+    var fr = document.getElementById("g-friendly"), friendly = !!(fr && fr.checked);
+    var rerr = rosterError(roster.length, friendly);
+    if(rerr){ document.getElementById("g-err").textContent=rerr; return; }
     var g = {id:uid(), rival:(document.getElementById("g-rival").value.trim()||"Rival"), date:(document.getElementById("g-date").value||today()),
       place:document.getElementById("g-place").value, roster:roster, events:[], q:1, done:false, onCourt:[null,null,null,null,null]};
+    if(friendly) g.friendly = true;
     S.games.push(g); S.liveId=g.id; U.sub="anotar"; U.sel=null; save(); render(); window.scrollTo(0,0);
   }
   if(f.id==="f-player"){
@@ -179,6 +196,7 @@ document.addEventListener("submit", function(e){
 document.addEventListener("input", function(e){ if(e.target.getAttribute && e.target.getAttribute("data-ed")) onEditInput(e.target); });
 document.addEventListener("change", function(e){
   if(e.target.getAttribute && e.target.getAttribute("data-ed")){ onEditInput(e.target); return; }
+  if(e.target.closest && e.target.closest("#f-game") && e.target.type==="checkbox"){ updateRosterForm(); return; }
   if(e.target.id!=="imp") return;
   var file = e.target.files && e.target.files[0]; if(!file) return;
   var rd = new FileReader();

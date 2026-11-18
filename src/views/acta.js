@@ -1,4 +1,6 @@
 // Editor del acta (minutos y correcciones)
+import { MAX_CONVOCADOS, rosterLimit } from "../logic/roster.js";
+import { nuevo } from "../ui/nuevo.js";
 import { QL } from "../logic/constants.js";
 import { EF, EF_LBL, draftTotals, rowPts } from "../logic/edit.js";
 import { byNum, esc, short } from "../logic/format.js";
@@ -8,6 +10,7 @@ export function viewEditGame(g){
   var d = U.draft, t = draftTotals(d);
   var ps = d.roster.map(player).filter(Boolean).sort(byNum);
   var others = S.players.filter(function(p){ return p.active && d.roster.indexOf(p.id)<0; }).sort(byNum);
+  var lleno = d.roster.length >= rosterLimit(g.friendly);
   var h = '<div class="subbar"><button class="btn" data-do="edit-cancel">← Salir sin guardar</button><button class="btn primary" type="submit" form="f-edit">Guardar cambios</button></div>';
   if(U.justFinished===g.id) h += '<div class="banner ok"><span><b>Partido finalizado.</b> Apunta los minutos de cada jugador y corrige lo que haga falta. Después podrás exportar el PDF.</span></div>';
   h += '<form id="f-edit" class="stack" novalidate>';
@@ -21,14 +24,15 @@ export function viewEditGame(g){
   h += '</div>'+(d.nq<5 ? '<button class="btn sm" type="button" data-do="edit-addq">Añadir prórroga</button>' : '')+'</section></div>';
   h += '<section class="card"><h2>Estadísticas de los jugadores</h2><p class="muted small">Los puntos se calculan solos a partir de los tiros. Deja los minutos en blanco si no los sabes.</p>'+
     '<div class="tbl-wrap"><table class="edt"><thead><tr><th scope="col">Jugador</th><th scope="col" class="minc">MIN</th>'+
-    EF.map(function(f){ return '<th scope="col">'+EF_LBL[f]+'</th>'; }).join("")+'<th scope="col">PTS</th></tr></thead><tbody>'+
+    EF.map(function(f){ return '<th scope="col"'+nuevo(f==="fr")+'>'+EF_LBL[f]+'</th>'; }).join("")+'<th scope="col">PTS</th></tr></thead><tbody>'+
     ps.map(function(p){ var r = d.p[p.id];
       return '<tr><th scope="row"><span class="dn">'+p.num+'</span>'+esc(short(p.name))+'</th>'+
         '<td class="minc"><input type="number" inputmode="numeric" min="0" max="70" aria-label="Minutos de '+esc(p.name)+'" data-ed="p:'+p.id+':min" value="'+esc(r.min)+'" placeholder="–"></td>'+
-        EF.map(function(f){ return '<td><input type="number" inputmode="numeric" min="0" aria-label="'+EF_LBL[f]+' de '+esc(p.name)+'" data-ed="p:'+p.id+':'+f+'" value="'+esc(r[f])+'"></td>'; }).join("")+
+        EF.map(function(f){ return '<td'+nuevo(f==="fr")+'><input type="number" inputmode="numeric" min="0" aria-label="'+EF_LBL[f]+' de '+esc(p.name)+'" data-ed="p:'+p.id+':'+f+'" value="'+esc(r[f])+'"></td>'; }).join("")+
         '<td class="hi" id="ed-pts-'+p.id+'">'+rowPts(r)+'</td></tr>';
     }).join("")+'</tbody></table></div>'+
-    (others.length ? '<div class="row addp"><label for="ed-add">Añadir un jugador a este partido<select id="ed-add">'+others.map(function(p){ return '<option value="'+p.id+'">#'+p.num+' '+esc(p.name)+'</option>'; }).join("")+'</select></label><button class="btn" type="button" data-do="edit-addp">Añadir</button></div>' : '')+
+    (others.length && lleno ? '<p class="muted small"'+nuevo(true,"conv")+'>Ya hay '+MAX_CONVOCADOS+' convocados, el máximo para un partido oficial.</p>' : '')+
+    (others.length && !lleno ? '<div class="row addp"><label for="ed-add">Añadir un jugador a este partido<select id="ed-add">'+others.map(function(p){ return '<option value="'+p.id+'">#'+p.num+' '+esc(p.name)+'</option>'; }).join("")+'</select></label><button class="btn" type="button" data-do="edit-addp">Añadir</button></div>' : '')+
     '</section><p class="err" id="ed-err" role="alert"></p>'+
     '<div class="btns"><button class="btn primary" type="submit">Guardar cambios</button><button class="btn" type="button" data-do="edit-cancel">Salir sin guardar</button></div></form>';
   return h;

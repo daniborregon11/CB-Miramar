@@ -52,7 +52,8 @@ Si todo está marcado, la app está lista para un partido de verdad.
 
 - **Antes:** tablet cargada (la pantalla encendida gasta batería; un partido son unas 2 horas). Si puedes, lleva un cargador o batería externa.
 - **Empezar:** pestaña **Partido** → rival, fecha, lugar, convocados → **Empezar partido** → toca 5 jugadores del banquillo para el quinteto inicial.
-- **Anotar:** toca el jugador en la cancha y después la acción.
+- **Convocados:** máximo **12** (el contador lo indica). Si en la plantilla hay más de 12, salen desmarcados y eliges tú. En un **amistoso** marca «Partido amistoso» y no hay límite.
+- **Anotar:** toca el jugador en la cancha y después la acción. **Falta recibida** está junto a «Falta»: no cuenta para las 5 faltas y suma +1 en la valoración.
 - **Cambios:** toca primero al del **banquillo** y después al de la cancha que sale.
 - **Si te equivocas:** **Deshacer** en el aviso de abajo, o la **×** en "Últimas acciones".
 - **No hace falta internet** en ningún momento.

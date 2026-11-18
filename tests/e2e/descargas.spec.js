@@ -33,13 +33,26 @@ test("PDF, CSV y copia salen iguales que en el prototipo", async ({ browser }) =
   await preparar(proto, PROTO);
   await preparar(app, "/");
   for (const p of [proto, app]) await abrirPartido(p);
-  for (const sel of ['[data-do^="pdf:"]', '[data-do^="csv:"]']) {
-    const a = await descargar(proto, sel);
-    await proto.keyboard.press("Escape"); // cierra la ventana del prototipo
-    const b = await descargar(app, sel);
-    expect(b.nombre).toBe(a.nombre);
-    expect(b.datos.equals(a.datos), b.nombre + " idéntico").toBe(true);
-  }
+  // CSV: igual que el del prototipo quitando la columna FR (faltas recibidas, añadida a propósito)
+  const ca1 = await descargar(proto, '[data-do^="csv:"]');
+  await proto.keyboard.press("Escape"); // cierra la ventana del prototipo
+  const cb1 = await descargar(app, '[data-do^="csv:"]');
+  expect(cb1.nombre).toBe(ca1.nombre);
+  const filas = cb1.datos.toString("utf-8").split("\n").map(l => l.split(";"));
+  const colFR = filas[0].indexOf("FR");
+  expect(colFR).toBeGreaterThan(0);
+  expect(filas.map(f => f.filter((_, i) => i !== colFR).join(";")).join("\n")).toBe(ca1.datos.toString("utf-8"));
+  // PDF: están todos los textos y números del prototipo (salvo la leyenda, que ahora explica FR) y además FR
+  const pa = await descargar(proto, '[data-do^="pdf:"]');
+  await proto.keyboard.press("Escape");
+  const pb = await descargar(app, '[data-do^="pdf:"]');
+  expect(pb.nombre).toBe(pa.nombre);
+  const textos = b => [...b.toString("latin1").matchAll(/\((.*?)\) Tj/g)].map(m => m[1]);
+  const ta = textos(pa.datos).filter(t => !t.startsWith("MIN minutos")), tb = textos(pb.datos);
+  const quedan = [...tb];
+  for (const t of ta) { const i = quedan.indexOf(t); expect(i, "en el PDF: " + t).toBeGreaterThanOrEqual(0); quedan.splice(i, 1); }
+  expect(tb).toContain("FR");
+  expect(tb.find(t => t.startsWith("MIN minutos"))).toContain("FR faltas recibidas");
   const pdf = await descargar(app, '[data-do^="pdf:"]');
   expect(pdf.datos.subarray(0, 8).toString("latin1")).toBe("%PDF-1.4");
   // La copia de seguridad: mismo contenido salvo la versión del formato de datos

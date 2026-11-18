@@ -74,6 +74,15 @@ describe("guardar el acta", () => {
     expect(calc(g.events, "a")).toMatchObject({ t2m: 3, t2a: 7 });
   });
 
+  it("las faltas recibidas se editan en el acta como el resto", () => {
+    const g = base(); const d = makeDraft(g);
+    expect(d.p.a.fr).toBe(0);
+    d.p.a.fr = "2"; applyDraft(g, d);
+    expect(calc(g.events, "a").fr).toBe(2);
+    const d2 = makeDraft(g); d2.p.a.fr = "x";
+    expect(validateDraft(d2, player)).toBe("Revisa F. recib. de #4 Álex Martín: tiene que ser un número entero, 0 o más.");
+  });
+
   it("rival vacío conserva el anterior; minutos en blanco no se guardan", () => {
     const g = base(); const d = makeDraft(g); d.rival = "   ";
     applyDraft(g, d);

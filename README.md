@@ -20,6 +20,7 @@ App publicada: https://daniborregon11.github.io/CB-Miramar/
 - `src/logic/`: la lógica (cálculo de estadísticas, tendencias, acta, cambios, CSV/PDF, datos de ejemplo). No toca la pantalla.
 - `tests/`: tests de la lógica (Vitest).
 - `tests/e2e/almacenamiento.spec.js`: los datos se conservan al reabrir, migración real desde el prototipo, copia importada y aviso si no se puede guardar.
+- `tests/e2e/mejoras.spec.js`: faltas recibidas y máximo de 12 convocados (amistoso sin límite).
 - `tests/e2e/descargas.spec.js`: PDF, CSV y copia idénticos a los del prototipo; aviso con Compartir.
 - `tests/e2e/pantalla.spec.js`: pantalla encendida solo con partido en juego; deslizar no recarga.
 - `tests/e2e/pwa.spec.js`: ficha e iconos, funcionamiento sin conexión, aviso de versión nueva (sin recargar sola) y funcionamiento en subcarpeta como en GitHub Pages.

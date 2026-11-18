@@ -2,7 +2,7 @@
 import { ACT } from "./constants.js";
 
 export function calc(events, pid){
-  var s={pts:0,t2m:0,t2a:0,t3m:0,t3a:0,tlm:0,tla:0,ro:0,rd:0,as:0,rb:0,tp:0,pe:0,fc:0};
+  var s={pts:0,t2m:0,t2a:0,t3m:0,t3a:0,tlm:0,tla:0,ro:0,rd:0,as:0,rb:0,tp:0,pe:0,fc:0,fr:0};
   for(var i=0;i<events.length;i++){
     var e=events[i];
     if(e.p==null) continue;
@@ -17,11 +17,11 @@ export function calc(events, pid){
       case "1F": s.tla++; break;
       case "RO": s.ro++; break; case "RD": s.rd++; break;
       case "AS": s.as++; break; case "RB": s.rb++; break;
-      case "TP": s.tp++; break; case "PE": s.pe++; break; case "FC": s.fc++; break;
+      case "TP": s.tp++; break; case "PE": s.pe++; break; case "FC": s.fc++; break; case "FR": s.fr++; break;
     }
   }
   s.reb = s.ro+s.rd; s.fgm = s.t2m+s.t3m; s.fga = s.t2a+s.t3a;
-  s.val = s.pts+s.reb+s.as+s.rb+s.tp-(s.fga-s.fgm)-(s.tla-s.tlm)-s.pe-s.fc;
+  s.val = s.pts+s.reb+s.as+s.rb+s.tp+s.fr-(s.fga-s.fgm)-(s.tla-s.tlm)-s.pe-s.fc;
   return s;
 }
 

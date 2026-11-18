@@ -15,6 +15,7 @@ export var ACT = {
   "RB":{t:"Robo",o:"Robo"},
   "TP":{t:"Tapón",o:"Tapón"},
   "PE":{t:"Pérdida",o:"Pérdida",cls:"neg"},
-  "FC":{t:"Falta personal",o:"Falta",cls:"neg"}
+  "FC":{t:"Falta personal",o:"Falta",cls:"neg"},
+  "FR":{t:"Falta recibida",o:"Falta<br>recibida"}
 };
-export var TITLES = {PTS:"Puntos",T2:"Tiros de 2 (anotados/intentados)",T3:"Triples (anotados/intentados)",TL:"Tiros libres (anotados/intentados)",RO:"Rebotes ofensivos",RD:"Rebotes defensivos",REB:"Rebotes totales",AS:"Asistencias",RB:"Robos",TP:"Tapones",PE:"Pérdidas",FC:"Faltas cometidas",VAL:"Valoración",PJ:"Partidos jugados"};
+export var TITLES = {PTS:"Puntos",T2:"Tiros de 2 (anotados/intentados)",T3:"Triples (anotados/intentados)",TL:"Tiros libres (anotados/intentados)",RO:"Rebotes ofensivos",RD:"Rebotes defensivos",REB:"Rebotes totales",AS:"Asistencias",RB:"Robos",TP:"Tapones",PE:"Pérdidas",FC:"Faltas cometidas",FR:"Faltas recibidas",VAL:"Valoración",PJ:"Partidos jugados"};

@@ -1,4 +1,5 @@
 // Ficha de un partido: parciales y tabla por jugador (Partido > Ficha e Historial)
+import { nuevo } from "../ui/nuevo.js";
 import { QL, TITLES } from "../logic/constants.js";
 import { byNum, esc, fsign, pct, short } from "../logic/format.js";
 import { calc, maxQ, score, track } from "../logic/stats.js";
@@ -6,18 +7,19 @@ import { S, player } from "../state.js";
 
 export function boxScore(g){
   var ps = g.roster.map(player).filter(Boolean).sort(byNum);
-  var head = ["MIN","PTS","T2","T3","TL","RO","RD","REB","AS","RB","TP","PE","FC","+/-","VAL"];
+  var head = ["MIN","PTS","T2","T3","TL","RO","RD","REB","AS","RB","TP","PE","FC","FR","+/-","VAL"];
+  var FR = head.indexOf("FR");
   var tk = track(g), mins = g.min||{}, msum = 0, mhas = false;
   Object.keys(mins).forEach(function(k){ msum += mins[k]; mhas = true; });
-  function row(s, id){ return [id===undefined ? (mhas?msum:"–") : (mins[id]!=null?mins[id]:"–"), s.pts, s.t2m+"/"+s.t2a, s.t3m+"/"+s.t3a, s.tlm+"/"+s.tla, s.ro, s.rd, s.reb, s.as, s.rb, s.tp, s.pe, s.fc, id===undefined ? "" : (tk.tracked ? fsign(tk.pm[id]||0) : "–"), s.val]; }
+  function row(s, id){ return [id===undefined ? (mhas?msum:"–") : (mins[id]!=null?mins[id]:"–"), s.pts, s.t2m+"/"+s.t2a, s.t3m+"/"+s.t3a, s.tlm+"/"+s.tla, s.ro, s.rd, s.reb, s.as, s.rb, s.tp, s.pe, s.fc, s.fr, id===undefined ? "" : (tk.tracked ? fsign(tk.pm[id]||0) : "–"), s.val]; }
   var all = ps.map(function(p){ return {p:p, s:calc(g.events,p.id)}; });
   var best = Math.max.apply(null, all.map(function(x){return x.s.pts;}).concat([0]));
   var tot = calc(g.events);
-  return '<div class="tbl-wrap"><table><thead><tr><th scope="col">Jugador</th>'+head.map(function(x){ return '<th scope="col" title="'+(TITLES[x]||(x==="MIN"?"Minutos":"Más/menos"))+'">'+x+'</th>'; }).join("")+'</tr></thead><tbody>'+
-    all.map(function(x){ return '<tr><th scope="row"><span class="dn">'+x.p.num+'</span>'+esc(short(x.p.name))+'</th>'+row(x.s,x.p.id).map(function(v,i){ return '<td'+(i===1&&best>0&&x.s.pts===best?' class="hi"':'')+'>'+v+'</td>'; }).join("")+'</tr>'; }).join("")+
-    '</tbody><tfoot><tr><th scope="row">Equipo</th>'+row(tot).map(function(v){ return '<td>'+v+'</td>'; }).join("")+'</tr>'+
-    '<tr class="pct"><th scope="row">Porcentaje</th><td></td><td></td><td>'+pct(tot.t2m,tot.t2a)+'</td><td>'+pct(tot.t3m,tot.t3a)+'</td><td>'+pct(tot.tlm,tot.tla)+'</td><td colspan="10"></td></tr></tfoot></table></div>'+
-    '<p class="muted small">+/- = diferencia de puntos con el jugador en pista. VAL = puntos + rebotes + asistencias + robos + tapones − tiros fallados − pérdidas − faltas.</p>';
+  return '<div class="tbl-wrap"><table><thead><tr><th scope="col">Jugador</th>'+head.map(function(x){ return '<th scope="col"'+nuevo(x==="FR")+' title="'+(TITLES[x]||(x==="MIN"?"Minutos":"Más/menos"))+'">'+x+'</th>'; }).join("")+'</tr></thead><tbody>'+
+    all.map(function(x){ return '<tr><th scope="row"><span class="dn">'+x.p.num+'</span>'+esc(short(x.p.name))+'</th>'+row(x.s,x.p.id).map(function(v,i){ return '<td'+nuevo(i===FR)+(i===1&&best>0&&x.s.pts===best?' class="hi"':'')+'>'+v+'</td>'; }).join("")+'</tr>'; }).join("")+
+    '</tbody><tfoot><tr><th scope="row">Equipo</th>'+row(tot).map(function(v,i){ return '<td'+nuevo(i===FR)+'>'+v+'</td>'; }).join("")+'</tr>'+
+    '<tr class="pct"><th scope="row">Porcentaje</th><td></td><td></td><td>'+pct(tot.t2m,tot.t2a)+'</td><td>'+pct(tot.t3m,tot.t3a)+'</td><td>'+pct(tot.tlm,tot.tla)+'</td><td colspan="11"></td></tr></tfoot></table></div>'+
+    '<p class="muted small">+/- = diferencia de puntos con el jugador en pista. VAL = puntos + rebotes + asistencias + robos + tapones<span data-nuevo="FR"> + faltas recibidas</span> − tiros fallados − pérdidas − faltas.</p>';
 }
 
 export function quarterTable(g){

@@ -10,6 +10,11 @@ const abrir = async (page, ruta = "/") => { await page.goto(ruta); await page.wa
 const marcador = page => page.locator(".team .pts").first().textContent();
 // Espera a que IndexedDB termine de escribir (se guarda en segundo plano, en milisegundos)
 const guardado = page => page.waitForTimeout(1000);
+// Texto de la pantalla sin lo añadido a propósito respecto al prototipo (marcado con data-nuevo)
+const textoComoPrototipo = page => page.evaluate(() => {
+  const st = document.createElement("style"); st.textContent = "[data-nuevo]{display:none!important}";
+  document.head.appendChild(st); const t = document.getElementById("app").innerText; st.remove(); return t;
+});
 
 test("lo anotado sigue ahí al cerrar y volver a abrir la app", async ({ page }) => {
   await sinInternet(page);
@@ -52,9 +57,9 @@ test("migración: lo que se hizo con el prototipo aparece en la app", async ({ p
   // Ahora se abre la app por primera vez
   await abrir(page, "/#historial");
   await page.locator(".grow").first().click();
-  expect(await page.locator("#app").innerText()).toBe(enPrototipo);
+  expect(await textoComoPrototipo(page)).toBe(enPrototipo);
   await page.click('.tabbar [data-do="tab:jugadores"]');
-  expect(await page.locator("#app").innerText()).toBe(plantillaPrototipo);
+  expect(await textoComoPrototipo(page)).toBe(plantillaPrototipo);
 
   // Ya está en IndexedDB: aunque desaparezca el almacenamiento antiguo, los datos siguen
   await guardado(page);

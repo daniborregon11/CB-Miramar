@@ -46,7 +46,7 @@ const PASOS = [
   ["quinteto inicial", async p => { for (let i = 0; i < 5; i++) await p.locator(".bbtn").first().click(); }],
   ["borrar ejemplo", async p => { await p.click('[data-do="clear-sample"]'); await p.click('[data-do="modal-ok"]'); }],
   // A partir de aquí, los dos cargan la misma copia (mismos identificadores), así que todo es comparable
-  ["importar copia: confirmación", async p => { await p.setInputFiles("#imp", COPIA); }],
+  ["importar copia: confirmación", async p => { await p.setInputFiles("#imp", COPIA); await p.waitForSelector(".modal"); }], // el archivo se lee en segundo plano
   ["importar copia: sí", async p => { await p.click('[data-do="modal-ok"]'); }],
   ["editar jugador", async p => { await p.locator('[data-do^="edit:"]').nth(2).click(); }],
   ["guardar jugador", async p => { await p.fill("#p-name", "Daniel Ruiz Gómez"); await p.click('#f-player button[type="submit"]'); }],
@@ -78,9 +78,17 @@ const PASOS = [
 const ANTES_DE_IMPORTAR = PASOS.findIndex(x => x[0] === "importar copia: sí");
 const sinCambiosIntencionados = (texto, i) => i < ANTES_DE_IMPORTAR ? texto.replaceAll("CB Miramar", "Mi equipo").replaceAll("CB MIRAMAR", "MI EQUIPO") : texto;
 
-const foto = p => p.evaluate(() => document.getElementById("app").innerText +
-  [...document.querySelectorAll("textarea, input, select")].map(x => "\n[" + x.type + "] " + (x.type === "checkbox" ? x.checked : x.tagName === "SELECT" ? (x.selectedOptions[0] || {}).text : x.value)).join("") +
-  "\n--toast--\n" + document.getElementById("toast").innerText);
+// Lo añadido a propósito respecto al prototipo va marcado con data-nuevo y se oculta al comparar.
+const foto = p => p.evaluate(() => {
+  const estilo = document.createElement("style");
+  estilo.textContent = "[data-nuevo]{display:none!important}";
+  document.head.appendChild(estilo);
+  const t = document.getElementById("app").innerText +
+    [...document.querySelectorAll("textarea, input, select")].filter(x => !x.closest("[data-nuevo]")).map(x => "\n[" + x.type + "] " + (x.type === "checkbox" ? x.checked : x.tagName === "SELECT" ? (x.selectedOptions[0] || {}).text : x.value)).join("") +
+    "\n--toast--\n" + document.getElementById("toast").innerText;
+  estilo.remove();
+  return t;
+});
 
 test("la app se comporta igual que el prototipo", async ({ browser }) => {
   const ctxA = await browser.newContext({ serviceWorkers: "block" }), ctxB = await browser.newContext({ serviceWorkers: "block" });

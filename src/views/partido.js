@@ -1,4 +1,6 @@
 // Pestaña Partido: cancha, banquillo, botones de acción, registro y nuevo partido
+import { MAX_CONVOCADOS, checkedByDefault, rosterCount } from "../logic/roster.js";
+import { nuevo } from "../ui/nuevo.js";
 import { ACT, QL } from "../logic/constants.js";
 import { ensureCourt } from "../logic/court.js";
 import { byNum, esc, short, today } from "../logic/format.js";
@@ -26,7 +28,7 @@ export var COURT_SVG = '<svg viewBox="0 0 500 467" aria-hidden="true" fill="none
 export function abtn(c){
   var a = ACT[c];
   var inner = a.o ? '<span class="o">'+a.o+'</span>' : '<span class="big">'+a.big+'</span><span>'+a.sm+'</span>';
-  return '<button class="abtn '+(a.cls||"")+'" data-do="act:'+c+'" aria-label="'+a.t+'">'+inner+'</button>';
+  return '<button class="abtn '+(a.cls||"")+'"'+nuevo(c==="FR")+' data-do="act:'+c+'" aria-label="'+a.t+'">'+inner+'</button>';
 }
 
 export function viewPartido(){
@@ -69,7 +71,7 @@ export function viewPartido(){
   h += '<div class="right"><section class="card"><h2>'+(sel ? '#'+sel.num+' '+esc(sel.name) : 'Acción')+'</h2>'+
     '<p class="hint">'+(sel ? (selStats.fc>=5 ? 'Tiene 5 faltas: está eliminado. ' : selStats.pts+' pts · '+selStats.reb+' reb · '+selStats.as+' ast · '+selStats.fc+' faltas · ')+'<button class="link" data-do="tobench:'+sel.id+'">Mandar al banquillo</button>' : 'Toca un jugador de la cancha y después la acción.')+'</p>'+
     '<div class="pad '+(sel?"":"off")+'"><div class="shots">'+["2A","3A","1A","2F","3F","1F"].map(abtn).join("")+'</div>'+
-    '<div class="others">'+["RD","RO","AS","RB","TP","PE","FC"].map(abtn).join("")+'</div></div></section>';
+    '<div class="others">'+["RD","RO","AS","RB","TP","PE","FC","FR"].map(abtn).join("")+'</div></div></section>';
   h += logCard(g)+'</div></div>';
   return h;
 }
@@ -90,12 +92,15 @@ export function logCard(g){
 export function viewNewGame(){
   var act = S.players.filter(function(p){return p.active;}).sort(byNum);
   if(!act.length) return '<section class="card"><h2>Nuevo partido</h2><p class="muted">Primero añade a los jugadores de tu equipo.</p><button class="btn primary" data-do="tab:jugadores">Ir a Jugadores</button></section>';
+  var marcar = checkedByDefault(act.length), marcados = marcar ? act.length : 0;
   return '<section class="card"><h2>Nuevo partido</h2><form id="f-game" class="stack" novalidate>'+
     '<div class="row"><label for="g-rival">Rival<input id="g-rival" placeholder="Nombre del rival" autocomplete="off" maxlength="40"></label>'+
     '<label for="g-date">Fecha<input id="g-date" type="date" value="'+today()+'"></label>'+
     '<label for="g-place">Lugar<select id="g-place"><option>Local</option><option>Visitante</option></select></label></div>'+
-    '<fieldset><legend>Convocados</legend><div class="checks">'+act.map(function(p){
-      return '<label class="chk" for="c-'+p.id+'"><input type="checkbox" id="c-'+p.id+'" value="'+p.id+'" checked><b>'+p.num+'</b> '+esc(p.name)+'</label>';
-    }).join("")+'</div></fieldset><p class="err" id="g-err" role="alert"></p>'+
+    '<fieldset><legend>Convocados<span'+nuevo(true,"conv")+'> <span id="g-count">'+rosterCount(marcados, false)+'</span></span></legend><div class="checks">'+act.map(function(p){
+      return '<label class="chk" for="c-'+p.id+'"><input type="checkbox" id="c-'+p.id+'" value="'+p.id+'"'+(marcar?' checked':'')+'><b>'+p.num+'</b> '+esc(p.name)+'</label>';
+    }).join("")+'</div>'+
+    (act.length > MAX_CONVOCADOS ? '<label class="chk friendly"'+nuevo(true,"conv")+' for="g-friendly"><input type="checkbox" id="g-friendly"> Partido amistoso (sin límite de '+MAX_CONVOCADOS+' convocados)</label>' : '')+
+    '</fieldset><p class="err" id="g-err" role="alert"></p>'+
     '<div class="btns"><button class="btn primary" type="submit">Empezar partido</button></div></form></section>';
 }

@@ -3,8 +3,8 @@ import { QL } from "./constants.js";
 import { uid } from "./format.js";
 import { calc, score, maxQ } from "./stats.js";
 
-export var EF = ["t2m","t2a","t3m","t3a","tlm","tla","ro","rd","as","rb","tp","pe","fc"];
-export var EF_LBL = {min:"MIN",t2m:"T2 anot.",t2a:"T2 int.",t3m:"T3 anot.",t3a:"T3 int.",tlm:"TL anot.",tla:"TL int.",ro:"Reb. of.",rd:"Reb. def.",as:"Asist.",rb:"Robos",tp:"Tapones",pe:"Pérd.",fc:"Faltas"};
+export var EF = ["t2m","t2a","t3m","t3a","tlm","tla","ro","rd","as","rb","tp","pe","fc","fr"];
+export var EF_LBL = {min:"MIN",t2m:"T2 anot.",t2a:"T2 int.",t3m:"T3 anot.",t3a:"T3 int.",tlm:"TL anot.",tla:"TL int.",ro:"Reb. of.",rd:"Reb. def.",as:"Asist.",rb:"Robos",tp:"Tapones",pe:"Pérd.",fc:"Faltas",fr:"F. recib."};
 
 export function draftRow(g, id){
   var s = calc(g.events, id), r = {min:(g.min && g.min[id]!=null) ? g.min[id] : ""};

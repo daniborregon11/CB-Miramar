@@ -44,6 +44,25 @@ describe("calc: estadísticas de un jugador a partir de los eventos", () => {
   });
 });
 
+describe("faltas recibidas (FR)", () => {
+  const s = calc([...lineaA, shot("a", "FR"), shot("a", "FR"), shot("b", "FR")], "a");
+  it("se cuentan aparte de las faltas cometidas", () => {
+    expect(s.fr).toBe(2);
+    expect(s.fc).toBe(1);
+  });
+  it("suman +1 cada una en la valoración (como en la ACB)", () => {
+    // la línea de "a" sin faltas recibidas vale 8
+    expect(s.val).toBe(10);
+  });
+  it("no suman puntos ni cambian el marcador", () => {
+    expect(s.pts).toBe(8);
+    expect(score(game([shot("a", "FR")]))).toEqual({ us: 0, op: 0 });
+  });
+  it("se pueden corregir en el acta (ajuste ADJ)", () => {
+    expect(calc([ev("ADJ", { p: "a", q: 0, d: { fr: 3 } })], "a")).toMatchObject({ fr: 3, val: 3 });
+  });
+});
+
 describe("métricas avanzadas", () => {
   const s = calc(lineaA, "a");
   it("eFG% = (TC anotados + 0,5·T3 anotados) / TC intentados", () => {

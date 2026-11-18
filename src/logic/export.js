@@ -6,9 +6,9 @@ import { calc, score, maxQ, efg, tsp, possOf, track } from "./stats.js";
 
 export function csvOf(g, player){
   var mins = g.min||{};
-  var rows = [["Dorsal","Jugador","MIN","PTS","T2A","T2I","T3A","T3I","TLA","TLI","RO","RD","REB","AS","RB","TP","PE","FC","VAL"]];
+  var rows = [["Dorsal","Jugador","MIN","PTS","T2A","T2I","T3A","T3I","TLA","TLI","RO","RD","REB","AS","RB","TP","PE","FC","FR","VAL"]];
   g.roster.map(player).filter(Boolean).sort(byNum).forEach(function(p){ var s=calc(g.events,p.id);
-    rows.push([p.num,p.name,mins[p.id]!=null?mins[p.id]:"",s.pts,s.t2m,s.t2a,s.t3m,s.t3a,s.tlm,s.tla,s.ro,s.rd,s.reb,s.as,s.rb,s.tp,s.pe,s.fc,s.val]); });
+    rows.push([p.num,p.name,mins[p.id]!=null?mins[p.id]:"",s.pts,s.t2m,s.t2a,s.t3m,s.t3a,s.tlm,s.tla,s.ro,s.rd,s.reb,s.as,s.rb,s.tp,s.pe,s.fc,s.fr,s.val]); });
   return "﻿"+rows.map(function(r){ return r.map(function(v){ v=String(v); return /[;"\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }).join(";"); }).join("\n");
 }
 
@@ -55,7 +55,7 @@ PDFDoc.prototype.build = function(){
 export function pdfGame(g, team, player){
   var d=new PDFDoc(), M=36, sc=score(g), tk=track(g), tot=calc(g.events), poss=possOf(tot);
   var res = sc.us>sc.op ? "Victoria" : sc.us<sc.op ? "Derrota" : "Empate";
-  var head = ["MIN","PTS","T2","T3","TL","RO","RD","REB","AS","RB","TP","PE","FC","+/-","VAL","eFG%","TS%"];
+  var head = ["MIN","PTS","T2","T3","TL","RO","RD","REB","AS","RB","TP","PE","FC","FR","+/-","VAL","eFG%","TS%"];
   var ps = g.roster.map(player).filter(Boolean).sort(byNum), mins = g.min||{}, msum=0, mhas=false;
   Object.keys(mins).forEach(function(k){ msum+=mins[k]; mhas=true; });
   function header(cont){
@@ -103,7 +103,7 @@ export function pdfGame(g, team, player){
     head.forEach(function(hh,i){ d.text(M+nameW+cw*i+cw/2,y+12.5,hh,{size:8,bold:true,color:"#F4F2ED",align:"center"}); });
     y+=18;
   }
-  function rowVals(s, pm, mn){ return [mn, s.pts, s.t2m+"/"+s.t2a, s.t3m+"/"+s.t3a, s.tlm+"/"+s.tla, s.ro, s.rd, s.reb, s.as, s.rb, s.tp, s.pe, s.fc, pm, s.val, fpc(efg(s)), fpc(tsp(s))]; }
+  function rowVals(s, pm, mn){ return [mn, s.pts, s.t2m+"/"+s.t2a, s.t3m+"/"+s.t3a, s.tlm+"/"+s.tla, s.ro, s.rd, s.reb, s.as, s.rb, s.tp, s.pe, s.fc, s.fr, pm, s.val, fpc(efg(s)), fpc(tsp(s))]; }
   thead();
   ps.forEach(function(p,idx){
     if(y>530){ header(true); y=104; thead(); }
@@ -121,7 +121,14 @@ export function pdfGame(g, team, player){
   d.text(M+6,y+12,"Porcentaje",{size:8,color:"#686B73"});
   [[2,pct(tot.t2m,tot.t2a)],[3,pct(tot.t3m,tot.t3a)],[4,pct(tot.tlm,tot.tla)]].forEach(function(x){ d.text(M+nameW+cw*x[0]+cw/2,y+12,x[1],{size:8,color:"#686B73",align:"center"}); });
   d.line(M,560,d.W-M,560);
-  d.text(M,574,"MIN minutos · PTS puntos · T2/T3/TL anotados/intentados · RO/RD rebotes ofensivos/defensivos · AS asistencias · RB robos · TP tapones · PE pérdidas · FC faltas · +/- diferencia con el jugador en pista · VAL valoración · eFG% y TS% acierto ajustado",{size:6.5,color:"#686B73"});
+  // Leyenda: si no cabe en una línea, se parte en dos por un " · "
+  var leyenda = "MIN minutos · PTS puntos · T2/T3/TL anotados/intentados · RO/RD rebotes ofensivos/defensivos · AS asistencias · RB robos · TP tapones · PE pérdidas · FC faltas cometidas · FR faltas recibidas · +/- diferencia con el jugador en pista · VAL valoración · eFG% y TS% acierto ajustado", ancho = d.W-2*M, lineas = [leyenda];
+  if(d.tw(leyenda, 6.5) > ancho){
+    var partes = leyenda.split(" · "), a = [];
+    while(partes.length && d.tw(a.concat(partes[0]).join(" · "), 6.5) <= ancho) a.push(partes.shift());
+    lineas = [a.join(" · "), partes.join(" · ")];
+  }
+  lineas.forEach(function(t, k){ d.text(M, lineas.length>1 ? 569+k*8 : 574, t, {size:6.5,color:"#686B73"}); });
   d.text(d.W-M,586,"Generado el "+new Date().toLocaleDateString("es-ES"),{size:6.5,color:"#686B73",align:"right"});
   return d.build();
 }
