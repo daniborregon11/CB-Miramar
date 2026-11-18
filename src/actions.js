@@ -73,6 +73,8 @@ export function setupEvents(){
 window.addEventListener("hashchange", function(){ var h=location.hash.slice(1); if(h==="temporada") h="estadisticas"; if(TABS.indexOf(h)>=0 && h!==U.tab){ U.tab=h; U.game=null; render(); } });
 
 document.addEventListener("click", function(e){
+  // El menú de Opciones se cierra al tocar fuera de él
+  if(U.opts && !e.target.closest(".optmenu, .optbtn")){ U.opts = false; render(); }
   var b = e.target.closest("[data-do]"); if(!b) return;
   var raw = b.getAttribute("data-do"), i = raw.indexOf(":");
   var k = i<0 ? raw : raw.slice(0,i), v = i<0 ? "" : raw.slice(i+1);
@@ -179,6 +181,7 @@ document.addEventListener("click", function(e){
     case "modal-ok": var fn = U.modal && U.modal.fn; U.modal=null; if(fn) fn(); save(); render(); break;
     case "modal-cancel": U.modal=null; render(); break;
     case "update-app": applyUpdate(); break;
+    case "opts": U.opts = !U.opts; render(); break;
     case "share-file": shareLastFile(); break;
     case "copy":
       var ta=document.getElementById("cp"); if(!ta) return;
@@ -247,5 +250,5 @@ document.addEventListener("change", function(e){
 document.addEventListener("pointerover", function(e){ var h = e.target.closest && e.target.closest(".ch-hit"); if(h) showTip(h); });
 document.addEventListener("pointerout", function(e){ var h = e.target.closest && e.target.closest(".ch-hit"); if(h){ var t=h.closest(".chart").querySelector(".ch-tip"); if(t) t.hidden=true; } });
 document.addEventListener("click", function(e){ var h = e.target.closest && e.target.closest(".ch-hit"); if(h) showTip(h); });
-document.addEventListener("keydown", function(e){ if(e.key==="Escape" && U.ask){ answerAsk("none"); return; } if(e.key==="Escape" && U.modal){ U.modal=null; render(); } });
+document.addEventListener("keydown", function(e){ if(e.key==="Escape" && U.ask){ answerAsk("none"); return; } if(e.key==="Escape" && U.opts){ U.opts=false; render(); return; } if(e.key==="Escape" && U.modal){ U.modal=null; render(); } });
 }

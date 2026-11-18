@@ -21,6 +21,18 @@ async function totalEquipo(page, col) {
   return v;
 }
 
+test("el botón Opciones está abajo del todo en la barra lateral; la asistencia sale centrada", async ({ page }) => {
+  const barra = await page.locator(".tabbar").boundingBox(), boton = await page.locator(".optbtn").boundingBox();
+  expect(boton.x).toBeLessThan(barra.x + 10);
+  expect(boton.y + boton.height).toBeGreaterThan(barra.y + barra.height - 40);
+  await enPista(page).first().click(); await page.click('[data-do="act:2A"]');
+  const v = await page.locator(".ask").boundingBox(), fila = page.locator(".askp .pbtn");
+  const a = await fila.first().boundingBox(), z = await fila.last().boundingBox();
+  const izq = a.x - v.x, der = v.x + v.width - (z.x + z.width);
+  expect(Math.abs(izq - der)).toBeLessThan(2); // mismo margen a los dos lados
+  await page.click('.ask [data-do="ask-none"]');
+});
+
 test("canasta: pregunta la asistencia con los otros 4 de pista y la guarda", async ({ page }) => {
   const tirador = (await enPista(page).first().locator(".num").textContent()).trim();
   const companeros = (await dorsales(enPista(page))).filter(d => d !== tirador);
@@ -92,14 +104,21 @@ test("«Deshacer última» quita el tiro con su asistencia; la × de la asistenc
 });
 
 test("las preguntas se pueden desactivar y el ajuste se recuerda", async ({ page }) => {
-  await page.click('.tabbar [data-do="tab:jugadores"]');
+  // Menú «Opciones», abajo a la izquierda
+  await expect(page.locator(".optmenu")).toHaveCount(0);
+  await page.click('[data-do="opts"]');
   await expect(page.locator("#pref-ast")).toBeChecked();
   await page.uncheck("#pref-ast");
+  await expect(page.locator(".optmenu")).toHaveCount(1); // marcar una casilla no lo cierra
+  await page.mouse.click(700, 400); // tocar fuera lo cierra
+  await expect(page.locator(".optmenu")).toHaveCount(0);
   await page.waitForTimeout(500);
   await page.reload(); await page.waitForSelector("#app main");
+  await page.click('[data-do="opts"]');
   await expect(page.locator("#pref-ast")).not.toBeChecked();
   await expect(page.locator("#pref-reb")).toBeChecked();
-  await page.click('.tabbar [data-do="tab:partido"]');
+  await page.click('[data-do="opts"]'); // volver a pulsar lo cierra
+  await expect(page.locator(".optmenu")).toHaveCount(0);
   await enPista(page).first().click(); await page.click('[data-do="act:3A"]');
   await expect(page.locator(".ask")).toHaveCount(0);
   await enPista(page).first().click(); await page.click('[data-do="act:3F"]');

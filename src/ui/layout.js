@@ -2,7 +2,8 @@
 import { QL, TABS } from "../logic/constants.js";
 import { esc } from "../logic/format.js";
 import { score } from "../logic/stats.js";
-import { S, U, liveGame } from "../state.js";
+import { S, U, liveGame, prefs } from "../state.js";
+import { nuevo } from "./nuevo.js";
 import { syncWakeLock } from "./wakelock.js";
 import { viewStats } from "../views/estadisticas.js";
 import { viewHistorial } from "../views/historial.js";
@@ -38,7 +39,14 @@ export function renderTabbar(){
   var names = {partido:"Partido",jugadores:"Jugadores",historial:"Historial",estadisticas:"Estadísticas"};
   return '<div class="tabbar"><nav aria-label="Secciones">'+TABS.map(function(t){
     return '<button data-do="tab:'+t+'"'+(U.tab===t?' aria-current="page"':'')+'>'+icons[t]+names[t]+'</button>';
-  }).join("")+'</nav></div>';
+  }).join("")+'</nav>'+
+    '<button class="optbtn"'+nuevo(true,"ask")+' data-do="opts" aria-haspopup="true" aria-expanded="'+(!!U.opts)+'">'+
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h9M19 7h1M4 17h1M11 17h9"/><circle cx="16" cy="7" r="2.5"/><circle cx="8" cy="17" r="2.5"/></svg>Opciones</button>'+
+    (U.opts ? '<div class="optmenu"'+nuevo(true,"ask")+' role="dialog" aria-label="Opciones de anotación"><h3>Opciones de anotación</h3>'+
+      '<p class="muted small">Ventanas que aparecen tras cada tiro. Si en algún partido van demasiado rápido, desactívalas aquí.</p>'+
+      '<label class="chk" for="pref-ast"><input type="checkbox" id="pref-ast" data-pref="askAst"'+(prefs.askAst!==false?' checked':'')+'> Preguntar quién da la asistencia tras una canasta de 2 o 3</label>'+
+      '<label class="chk" for="pref-reb"><input type="checkbox" id="pref-reb" data-pref="askReb"'+(prefs.askReb!==false?' checked':'')+'> Preguntar por el rebote tras un tiro fallado (también tiros libres)</label></div>' : '')+
+    '</div>';
 }
 
 export function renderModal(){
