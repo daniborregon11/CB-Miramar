@@ -1,7 +1,7 @@
 // Ficha de un partido: parciales y tabla por jugador (Partido > Ficha e Historial)
 import { nuevo } from "../ui/nuevo.js";
 import { QL, TITLES } from "../logic/constants.js";
-import { byNum, esc, fsign, pct, short } from "../logic/format.js";
+import { byNum, esc, fmtMin, fsign, pct, short } from "../logic/format.js";
 import { calc, maxQ, score, track } from "../logic/stats.js";
 import { S, player } from "../state.js";
 
@@ -11,7 +11,7 @@ export function boxScore(g){
   var FR = head.indexOf("FR");
   var tk = track(g), mins = g.min||{}, msum = 0, mhas = false;
   Object.keys(mins).forEach(function(k){ msum += mins[k]; mhas = true; });
-  function row(s, id){ return [id===undefined ? (mhas?msum:"–") : (mins[id]!=null?mins[id]:"–"), s.pts, s.t2m+"/"+s.t2a, s.t3m+"/"+s.t3a, s.tlm+"/"+s.tla, s.ro, s.rd, s.reb, s.as, s.rb, s.tp, s.pe, s.fc, s.fr, id===undefined ? "" : (tk.tracked ? fsign(tk.pm[id]||0) : "–"), s.val]; }
+  function row(s, id){ return [id===undefined ? (mhas?fmtMin(msum):"–") : (mins[id]!=null?fmtMin(mins[id]):"–"), s.pts, s.t2m+"/"+s.t2a, s.t3m+"/"+s.t3a, s.tlm+"/"+s.tla, s.ro, s.rd, s.reb, s.as, s.rb, s.tp, s.pe, s.fc, s.fr, id===undefined ? "" : (tk.tracked ? fsign(tk.pm[id]||0) : "–"), s.val]; }
   var all = ps.map(function(p){ return {p:p, s:calc(g.events,p.id)}; });
   var best = Math.max.apply(null, all.map(function(x){return x.s.pts;}).concat([0]));
   var tot = calc(g.events);

@@ -1,14 +1,14 @@
 // Exportar CSV y PDF (del prototipo). El PDF se genera sin librerías externas.
 // player(id) devuelve el jugador o null; team es el nombre del equipo.
 import { QL } from "./constants.js";
-import { fmtDate, byNum, pct, f1, fsign, fpc } from "./format.js";
+import { byNum, f1, fmtDate, fmtMin, fpc, fsign, pct } from "./format.js";
 import { calc, score, maxQ, efg, tsp, possOf, track } from "./stats.js";
 
 export function csvOf(g, player){
   var mins = g.min||{};
   var rows = [["Dorsal","Jugador","MIN","PTS","T2A","T2I","T3A","T3I","TLA","TLI","RO","RD","REB","AS","RB","TP","PE","FC","FR","VAL"]];
   g.roster.map(player).filter(Boolean).sort(byNum).forEach(function(p){ var s=calc(g.events,p.id);
-    rows.push([p.num,p.name,mins[p.id]!=null?mins[p.id]:"",s.pts,s.t2m,s.t2a,s.t3m,s.t3a,s.tlm,s.tla,s.ro,s.rd,s.reb,s.as,s.rb,s.tp,s.pe,s.fc,s.fr,s.val]); });
+    rows.push([p.num,p.name,mins[p.id]!=null?fmtMin(mins[p.id]):"",s.pts,s.t2m,s.t2a,s.t3m,s.t3a,s.tlm,s.tla,s.ro,s.rd,s.reb,s.as,s.rb,s.tp,s.pe,s.fc,s.fr,s.val]); });
   return "﻿"+rows.map(function(r){ return r.map(function(v){ v=String(v); return /[;"\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }).join(";"); }).join("\n");
 }
 
@@ -111,12 +111,12 @@ export function pdfGame(g, team, player){
     if(idx%2===1) d.rect(M,y,d.W-2*M,17,"#F7F5F0");
     d.text(M+6,y+12,String(p.num),{size:9,bold:true,color:"#686B73"});
     d.text(M+28,y+12,p.name,{size:9});
-    rowVals(s, tk.tracked ? fsign(tk.pm[p.id]||0) : "-", mins[p.id]!=null?mins[p.id]:"-").forEach(function(v,i){ d.text(M+nameW+cw*i+cw/2,y+12,String(v),{size:9,align:"center",bold:i===1,color:i===1?"#D4531F":"#1A1C21"}); });
+    rowVals(s, tk.tracked ? fsign(tk.pm[p.id]||0) : "-", mins[p.id]!=null?fmtMin(mins[p.id]):"-").forEach(function(v,i){ d.text(M+nameW+cw*i+cw/2,y+12,String(v),{size:9,align:"center",bold:i===1,color:i===1?"#D4531F":"#1A1C21"}); });
     y+=17;
   });
   d.line(M,y,d.W-M,y,"#1A1C21",1.2);
   d.text(M+6,y+13,"Equipo",{size:9,bold:true});
-  rowVals(tot,"",mhas?msum:"-").forEach(function(v,i){ d.text(M+nameW+cw*i+cw/2,y+13,String(v),{size:9,bold:true,align:"center"}); });
+  rowVals(tot,"",mhas?fmtMin(msum):"-").forEach(function(v,i){ d.text(M+nameW+cw*i+cw/2,y+13,String(v),{size:9,bold:true,align:"center"}); });
   y+=18;
   d.text(M+6,y+12,"Porcentaje",{size:8,color:"#686B73"});
   [[2,pct(tot.t2m,tot.t2a)],[3,pct(tot.t3m,tot.t3a)],[4,pct(tot.tlm,tot.tla)]].forEach(function(x){ d.text(M+nameW+cw*x[0]+cw/2,y+12,x[1],{size:8,color:"#686B73",align:"center"}); });

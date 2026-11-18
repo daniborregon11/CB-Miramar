@@ -5,7 +5,7 @@ import { ACT, QL, TABS } from "./logic/constants.js";
 import { addSub, ensureCourt, removeEv } from "./logic/court.js";
 import { applyDraft, draftRow, draftTotals, makeDraft, rowPts, validateDraft } from "./logic/edit.js";
 import { csvOf, pdfGame } from "./logic/export.js";
-import { short, today, uid } from "./logic/format.js";
+import { fmtMin, parseMin, short, today, uid } from "./logic/format.js";
 import { score } from "./logic/stats.js";
 import { migrate } from "./storage/migrate.js";
 import { applyUpdate } from "./ui/pwa.js";
@@ -224,7 +224,11 @@ document.addEventListener("submit", function(e){
 
 document.addEventListener("input", function(e){ if(e.target.getAttribute && e.target.getAttribute("data-ed")) onEditInput(e.target); });
 document.addEventListener("change", function(e){
-  if(e.target.getAttribute && e.target.getAttribute("data-ed")){ onEditInput(e.target); return; }
+  if(e.target.getAttribute && e.target.getAttribute("data-ed")){
+    // Minutos: al salir de la casilla, "18.05" o "18,05" se muestran como "18:05"
+    if(/:min$/.test(e.target.getAttribute("data-ed"))){ var pm = parseMin(e.target.value); if(pm!=="" && pm!==null) e.target.value = fmtMin(pm); }
+    onEditInput(e.target); return;
+  }
   if(e.target.closest && e.target.closest("#f-game") && e.target.type==="checkbox"){ updateRosterForm(); return; }
   if(e.target.getAttribute && e.target.getAttribute("data-pref")){ setPref(e.target.getAttribute("data-pref"), e.target.checked); return; }
   if(e.target.id!=="imp") return;

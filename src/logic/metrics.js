@@ -1,4 +1,5 @@
 // Datos que se pueden analizar en las gráficas y tablas de temporada (del prototipo)
+import { fmtMin } from "./format.js";
 import { calc, score, track, efg, tsp, possOf, allEvents } from "./stats.js";
 
 export var TEAM_M = {
@@ -20,7 +21,7 @@ export var PLAYER_M = {
   efg:{l:"eFG%", u:"puntos de %", hb:1, suf:"%", get:function(g,id){ return efg(calc(g.events,id)); }},
   ts:{l:"TS%", u:"puntos de %", hb:1, suf:"%", get:function(g,id){ return tsp(calc(g.events,id)); }},
   pm:{l:"Más/menos", u:"puntos", hb:1, zero:1, get:function(g,id){ var t=track(g); return t.tracked ? (t.pm[id]||0) : null; }},
-  min:{l:"Minutos", u:"minutos", hb:1, get:function(g,id){ return g.min && g.min[id]!=null ? g.min[id] : null; }}
+  min:{l:"Minutos", u:"minutos", hb:1, fmt:fmtMin, get:function(g,id){ return g.min && g.min[id]!=null ? g.min[id] : null; }}
 };
 
 /* Filas de la tabla de temporada: una por jugador que ha jugado algún partido finalizado */

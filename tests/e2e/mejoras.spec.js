@@ -127,3 +127,43 @@ test("en el acta de un partido oficial no deja añadir un 13.º jugador", async 
   await expect(page.locator("#ed-add")).toHaveCount(0);
   await expect(page.locator("main")).toContainText("Ya hay 12 convocados");
 });
+
+test("minutos con segundos: se escriben en el acta (22:32, 18.05) y se ven como mm:ss en todas partes", async ({ page }) => {
+  await page.click('[data-do="finish"]'); await page.click('[data-do="modal-ok"]');
+  const min = page.locator(".edt td.minc input");
+  await expect(min.first()).toHaveAttribute("placeholder", "mm:ss");
+  // segundos con una cifra: error
+  await min.nth(0).fill("22.5");
+  await page.locator('#f-edit button[type="submit"]').last().click();
+  await expect(page.locator("#ed-err")).toContainText("escribe minutos y segundos, por ejemplo 22:32");
+  await min.nth(0).fill("22:32");
+  await min.nth(1).fill("18.05");
+  await min.nth(2).click(); // al salir de la casilla se muestra como mm:ss
+  await expect(min.nth(1)).toHaveValue("18:05");
+  await page.locator('#f-edit button[type="submit"]').last().click();
+  await expect(page.locator("#f-edit")).toHaveCount(0); // guardado: vuelve a la ficha
+  // ficha del partido
+  const tabla = page.locator(".tbl-wrap table").nth(1);
+  const col = (await tabla.locator("thead th").allTextContents()).indexOf("MIN");
+  const celda = (fila) => fila.locator("th, td").nth(col);
+  expect(await celda(tabla.locator("tbody tr").nth(0)).textContent()).toBe("22:32");
+  expect(await celda(tabla.locator("tbody tr").nth(1)).textContent()).toBe("18:05");
+  expect(await celda(tabla.locator("tfoot tr").first()).textContent()).toBe("40:37");
+  // al volver a abrir el acta se ven igual
+  await page.click('[data-do^="edit-game:"]');
+  await expect(min.nth(0)).toHaveValue("22:32");
+  await expect(min.nth(1)).toHaveValue("18:05");
+  await page.locator('[data-do="edit-cancel"]').first().click();
+  // temporada y análisis del jugador
+  await page.click('.tabbar [data-do="tab:estadisticas"]');
+  await page.click('[data-do="stats:jugadores"]');
+  await page.click('[data-do="season:tot"]');
+  const temp = page.locator("main table").first();
+  const cMin = (await temp.locator("thead th").allTextContents()).indexOf("MIN");
+  const fila = temp.locator("tbody tr").filter({ has: page.locator("td", { hasText: "22:32" }) });
+  await expect(fila).toHaveCount(1);
+  expect(await fila.locator("th, td").nth(cMin).textContent()).toBe("22:32");
+  await fila.locator('[data-do^="player:"]').click();
+  await expect(page.locator(".tile", { hasText: "Minutos por partido" }).locator("b")).toHaveText("22:32");
+  await expect(page.locator("main table").last().locator("tbody tr").first()).toContainText("22:32");
+});

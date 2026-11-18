@@ -18,7 +18,7 @@ describe("CSV", () => {
   });
   it("una fila por jugador ordenada por dorsal; entrecomilla lo que lleva ';' o comillas", () => {
     expect(lines[1]).toBe('4;"Hugo ""el; rápido""";;2;1;1;0;0;0;1;0;0;0;0;0;0;0;0;0;1');
-    expect(lines[2]).toBe("10;Álex Martín;25;3;0;0;1;1;0;0;0;0;0;0;0;0;0;0;0;3");
+    expect(lines[2]).toBe("10;Álex Martín;25:00;3;0;0;1;1;0;0;0;0;0;0;0;0;0;0;0;3");
   });
 });
 

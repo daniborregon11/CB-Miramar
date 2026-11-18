@@ -59,7 +59,7 @@ Si todo está marcado, la app está lista para un partido de verdad.
 - **Si te equivocas:** **Deshacer** en el aviso de abajo, o la **×** en "Últimas acciones". Deshacer un tiro quita también su asistencia o rebote; la × de la asistencia o del rebote quita solo eso.
 - **No hace falta internet** en ningún momento.
 - **Si sale "Hay una versión nueva de la app"** durante el partido, **ignórala** y actualiza después: no se pierde nada.
-- **Al acabar:** **Finalizar partido**, apunta los minutos si los tienes y **Guardar cambios**.
+- **Al acabar:** **Finalizar partido**, apunta los minutos si los tienes y **Guardar cambios**. Los minutos se escriben como **minutos:segundos** (22:32). Si el teclado no tiene «:», vale con punto o coma (22.32): al salir de la casilla se ve como 22:32.
 
 ---
 

@@ -34,10 +34,10 @@ describe("validaciones del acta", () => {
     expect(conCambio(d => { d.p.b.t3m = 2; })).toMatch(/triples anotados/);
     expect(conCambio(d => { d.p.b.tlm = 1; })).toMatch(/tiros libres anotados/);
   });
-  it("minutos entre 0 y 70 o en blanco", () => {
-    expect(conCambio(d => { d.p.a.min = "70"; })).toBeNull();
-    expect(conCambio(d => { d.p.a.min = "71"; })).toBe("Revisa los minutos de #4 Álex Martín: un número entre 0 y 70, o en blanco.");
-    expect(conCambio(d => { d.p.a.min = "abc"; })).toMatch(/minutos/);
+  it("minutos:segundos hasta 70:00, o en blanco", () => {
+    for (const ok of ["70", "70:00", "22:32", "22.32", "22,32", "0:45", " 5:07 ", ""]) expect(conCambio(d => { d.p.a.min = ok; }), ok).toBeNull();
+    const msg = "Revisa los minutos de #4 Álex Martín: escribe minutos y segundos, por ejemplo 22:32 (hasta 70:00), o déjalo en blanco.";
+    for (const mal of ["71", "70:01", "22:60", "22.5", "22:5", "abc", "-3", "22:32:10"]) expect(conCambio(d => { d.p.a.min = mal; }), mal).toBe(msg);
   });
   it("puntos del rival por cuarto", () => {
     expect(conCambio(d => { d.opp[3] = "x"; })).toBe("Revisa los puntos del rival en el 3C.");
@@ -81,6 +81,19 @@ describe("guardar el acta", () => {
     expect(calc(g.events, "a").fr).toBe(2);
     const d2 = makeDraft(g); d2.p.a.fr = "x";
     expect(validateDraft(d2, player)).toBe("Revisa F. recib. de #4 Álex Martín: tiene que ser un número entero, 0 o más.");
+  });
+
+  it("los minutos se guardan con sus segundos y se vuelven a mostrar igual", () => {
+    const g = base(); const d = makeDraft(g);
+    d.p.a.min = "22:32"; d.p.b.min = "18.05";
+    applyDraft(g, d);
+    expect(g.min.a * 60).toBeCloseTo(22 * 60 + 32, 6);
+    expect(g.min.b * 60).toBeCloseTo(18 * 60 + 5, 6);
+    const d2 = makeDraft(g);
+    expect([d2.p.a.min, d2.p.b.min]).toEqual(["22:32", "18:05"]);
+    // los minutos antiguos (solo minutos) se ven con :00
+    const viejo = base(); viejo.min = { a: 31 };
+    expect(makeDraft(viejo).p.a.min).toBe("31:00");
   });
 
   it("rival vacío conserva el anterior; minutos en blanco no se guardan", () => {

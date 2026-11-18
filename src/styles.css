@@ -148,7 +148,7 @@ td.pos{color:var(--good);font-weight:600} td.neg{color:var(--bad);font-weight:60
 .edt td{padding:4px 3px}
 .edt th{white-space:nowrap}
 .edt input{width:54px;padding:8px 4px;text-align:center;font-size:15px;font-variant-numeric:tabular-nums}
-.edt td.minc input{width:60px;border-color:var(--accent)}
+.edt td.minc input{width:76px;border-color:var(--accent)}
 .edt thead th.minc{color:var(--accent)}
 .addp{margin-top:12px;align-items:flex-end}
 .addp label{flex:0 1 320px}

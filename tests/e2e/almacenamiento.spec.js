@@ -1,5 +1,6 @@
 // Guardado en IndexedDB y migración desde el prototipo
 import { test, expect } from "@playwright/test";
+import { textoComparable } from "./comparar.js";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -10,11 +11,7 @@ const abrir = async (page, ruta = "/") => { await page.goto(ruta); await page.wa
 const marcador = page => page.locator(".team .pts").first().textContent();
 // Espera a que IndexedDB termine de escribir (se guarda en segundo plano, en milisegundos)
 const guardado = page => page.waitForTimeout(1000);
-// Texto de la pantalla sin lo añadido a propósito respecto al prototipo (marcado con data-nuevo)
-const textoComoPrototipo = page => page.evaluate(() => {
-  const st = document.createElement("style"); st.textContent = "[data-nuevo]{display:none!important}";
-  document.head.appendChild(st); const t = document.getElementById("app").innerText; st.remove(); return t;
-});
+const textoComoPrototipo = page => textoComparable(page);
 
 test("lo anotado sigue ahí al cerrar y volver a abrir la app", async ({ page }) => {
   await sinInternet(page);
@@ -51,9 +48,9 @@ test("migración: lo que se hizo con el prototipo aparece en la app", async ({ p
   await page.click('[data-do="finish"]'); await page.click('[data-do="modal-ok"]');
   await page.locator(".edt td.minc input").first().fill("32");
   await page.locator('#f-edit button[type="submit"]').last().click();
-  const enPrototipo = await page.locator("#app").innerText();
+  const enPrototipo = await textoComparable(page);
   await page.click('.tabbar [data-do="tab:jugadores"]');
-  const plantillaPrototipo = await page.locator("#app").innerText();
+  const plantillaPrototipo = await textoComparable(page);
 
   // Ahora se abre la app por primera vez
   await abrir(page, "/#historial");

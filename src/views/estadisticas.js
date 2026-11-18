@@ -1,7 +1,7 @@
 // Pestaña Estadísticas: equipo, jugadores y análisis individual
 import { orebPct } from "../logic/followup.js";
 import { nuevo } from "../ui/nuevo.js";
-import { byNum, esc, f1, fmtV, fpc, fsign, pct, short, shortDate } from "../logic/format.js";
+import { byNum, esc, f1, fmtMin, fmtV, fpc, fsign, pct, short, shortDate } from "../logic/format.js";
 import { PLAYER_M, TEAM_M, per40, seasonRows } from "../logic/metrics.js";
 import { allEvents, astTo, calc, doneGames, efg, possOf, score, track, tsp } from "../logic/stats.js";
 import { trendInfo } from "../logic/trend.js";
@@ -105,7 +105,7 @@ export function viewStatsPlayers(done){
       var pmv = r.pmn ? (avg ? fsign(r.pm/r.pmn,true) : fsign(r.pm)) : "–";
       var at = astTo(s);
       return '<tr><th scope="row"><button class="link plain" data-do="player:'+r.p.id+'"><span class="dn">'+r.p.num+'</span>'+esc(short(r.p.name))+'</button>'+(r.p.active?'':' <span class="muted">(baja)</span>')+'</th>'+
-        [n, r.mnn ? (avg ? f1(r.mn/r.mnn) : r.mn) : "–", f(s.pts,n), f(s.reb,n), f(s.as,n), f(s.rb,n), f(s.tp,n), f(s.pe,n), f(s.fc,n), f(s.fr,n), pct(s.t2m,s.t2a), pct(s.t3m,s.t3a), pct(s.tlm,s.tla), fpc(efg(s)), fpc(tsp(s)), at==null?"–":f1(at), pmv, f(s.val,n)].map(function(v,i){ return '<td'+nuevo(i===9)+(i===2?' class="hi"':'')+'>'+v+'</td>'; }).join("")+'</tr>';
+        [n, r.mnn ? (avg ? fmtMin(r.mn/r.mnn) : fmtMin(r.mn)) : "–", f(s.pts,n), f(s.reb,n), f(s.as,n), f(s.rb,n), f(s.tp,n), f(s.pe,n), f(s.fc,n), f(s.fr,n), pct(s.t2m,s.t2a), pct(s.t3m,s.t3a), pct(s.tlm,s.tla), fpc(efg(s)), fpc(tsp(s)), at==null?"–":f1(at), pmv, f(s.val,n)].map(function(v,i){ return '<td'+nuevo(i===9)+(i===2?' class="hi"':'')+'>'+v+'</td>'; }).join("")+'</tr>';
     }).join("")+'</tbody></table></div>'+glossary()+'</section>';
 }
 export function glossary(){
@@ -133,14 +133,14 @@ export function viewPlayerDetail(p){
     '<div class="tile"><b>'+f1(s.val/n)+'</b><span>Valoración por partido</span></div>'+
     '<div class="tile"><b>'+fpc(tsp(s))+'</b><span>TS%</span></div>'+
     '<div class="tile"><b>'+(r.pmn?fsign(r.pm/r.pmn,true):"–")+'</b><span>Más/menos por partido</span></div>'+
-    (r.mnn ? '<div class="tile"><b>'+f1(r.mn/r.mnn)+'</b><span>Minutos por partido</span></div>' : '')+
+    (r.mnn ? '<div class="tile"><b>'+fmtMin(r.mn/r.mnn)+'</b><span>Minutos por partido</span></div>' : '')+
     (r.mn>0 ? '<div class="tile"><b>'+f1(40*per40(r,"pts"))+'</b><span>Puntos por 40 minutos</span></div><div class="tile"><b>'+f1(40*per40(r,"reb"))+'</b><span>Rebotes por 40 minutos</span></div>' : '')+'</div></section>';
   h += '<section class="card"><h2>Evolución · '+M.l+'</h2>'+metricChips(PLAYER_M, m, "mP")+
     '<div class="trend">'+tr.html+'</div>'+chartSVG(pts, M, tr.fit)+
     '<p class="muted small" style="margin:4px 0 0">Cada punto es un partido. La línea discontinua es la tendencia.</p>'+lastVsAvg(pts, M)+'</section>';
   h += '<section class="card"><h2>Partido a partido</h2><div class="tbl-wrap"><table><thead><tr><th scope="col">Partido</th><th>MIN</th><th>PTS</th><th>T2</th><th>T3</th><th>TL</th><th>REB</th><th>AS</th><th>RB</th><th>TP</th><th>PE</th><th>FC</th><th data-nuevo="FR">FR</th><th>+/-</th><th>VAL</th></tr></thead><tbody>'+
     done.slice().reverse().map(function(g){ var t=calc(g.events,p.id), tk=track(g);
-      return '<tr><th scope="row"><button class="link plain" data-do="open-h:'+g.id+'">'+shortDate(g.date)+' · '+esc(g.rival)+'</button></th><td>'+(g.min&&g.min[p.id]!=null?g.min[p.id]:"–")+'</td><td class="hi">'+t.pts+'</td><td>'+t.t2m+'/'+t.t2a+'</td><td>'+t.t3m+'/'+t.t3a+'</td><td>'+t.tlm+'/'+t.tla+'</td><td>'+t.reb+'</td><td>'+t.as+'</td><td>'+t.rb+'</td><td>'+t.tp+'</td><td>'+t.pe+'</td><td>'+t.fc+'</td><td data-nuevo="FR">'+t.fr+'</td><td>'+(tk.tracked?fsign(tk.pm[p.id]||0):"–")+'</td><td>'+t.val+'</td></tr>';
+      return '<tr><th scope="row"><button class="link plain" data-do="open-h:'+g.id+'">'+shortDate(g.date)+' · '+esc(g.rival)+'</button></th><td>'+(g.min&&g.min[p.id]!=null?fmtMin(g.min[p.id]):"–")+'</td><td class="hi">'+t.pts+'</td><td>'+t.t2m+'/'+t.t2a+'</td><td>'+t.t3m+'/'+t.t3a+'</td><td>'+t.tlm+'/'+t.tla+'</td><td>'+t.reb+'</td><td>'+t.as+'</td><td>'+t.rb+'</td><td>'+t.tp+'</td><td>'+t.pe+'</td><td>'+t.fc+'</td><td data-nuevo="FR">'+t.fr+'</td><td>'+(tk.tracked?fsign(tk.pm[p.id]||0):"–")+'</td><td>'+t.val+'</td></tr>';
     }).join("")+'</tbody></table></div>'+glossary()+'</section>';
   return h;
 }
